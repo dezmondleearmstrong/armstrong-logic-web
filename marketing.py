@@ -93,7 +93,7 @@ else:
             monthly_sales = st.number_input("Monthly Revenue ($)", min_value=0)
 
         if st.button("ACTIVATE CALCULATION") and monthly_sales > 0 and target_email:
-            with st.spinner(“ARMSTRONGLOGIC Engine Analyzing..."):
+            with st.spinner("ARMSTRONGLOGIC Engine Analyzing..."):
                 try:
                     # Target the 2.5 Pro Model explicitly for guest analysis
                     response = client.models.generate_content(
