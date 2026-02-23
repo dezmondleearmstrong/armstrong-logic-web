@@ -127,4 +127,7 @@ else:
                     # Automated Dispatch
                     yag = yagmail.SMTP(MY_EMAIL, GMAIL_PASS)
                     yag.send(
-                        to=[target_email, MY_EMAIL],
+                        to=[target_email, MY_EMAIL], 
+                        subject=f"ArmstrongLogic Forensic Report: {res_name}", 
+                        contents=response.text
+                    ) # <--- This is the bracket that was missing!  
