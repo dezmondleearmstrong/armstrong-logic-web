@@ -118,7 +118,7 @@ if st.session_state.is_member:
 else:
     LIMIT = 3
     if st.session_state.leak_scans < LIMIT:
-        st.markdown(f"## 🧪 Profit Leak Calculator")
+        st.markdown(f"## 🛡️ Armstrong Logic | Leak Calculator")
         st.write(f"Node Cycles Remaining: {LIMIT - st.session_state.leak_scans}")
         
         col1, col2 = st.columns(2)
@@ -129,7 +129,7 @@ else:
             monthly_sales = st.number_input("Monthly Revenue ($)", min_value=0, step=1000)
 
         if st.button("ACTIVATE CALCULATION") and monthly_sales > 0 and target_email:
-            with st.spinner("2.5 Pro Engine Analyzing..."):
+            with st.spinner("ARMSTRONGLOGIC Engine Analyzing..."):
                 try:
                     prompt = f"Restaurant {res_name} does ${monthly_sales} sales. Explain 5% loss to theft/voids in 2 sentences. Mention ArmstrongLogic."
                     response = client.models.generate_content(model="gemini-2.5-pro", contents=prompt)
