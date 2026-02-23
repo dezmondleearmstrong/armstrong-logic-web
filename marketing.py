@@ -123,7 +123,7 @@ else:
         
         col1, col2 = st.columns(2)
         with col1:
-            res_name = st.text_input("Restaurant Name", placeholder="Mama's Pizza")
+            res_name = st.text_input("Restaurant Name", placeholder="Your Restaurant")
             target_email = st.text_input("Email Destination")
         with col2:
             monthly_sales = st.number_input("Monthly Revenue ($)", min_value=0, step=1000)
