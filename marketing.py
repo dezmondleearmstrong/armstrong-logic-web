@@ -101,7 +101,7 @@ if st.session_state.is_member:
         st.dataframe(df.head(10), use_container_width=True)
         
         if st.button("EXECUTE NEURAL SCAN"):
-            with st.spinner(“ARMSTRONGLOGIC decoding profit vectors..."):
+            with st.spinner("ARMSTRONGLOGIC decoding profit vectors..."):
                 data_summary = df.describe().to_string()
                 try:
                     response = client.models.generate_content(
