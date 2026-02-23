@@ -132,7 +132,7 @@ else:
             with st.spinner("ARMSTRONGLOGIC Engine Analyzing..."):
                 try:
 
-         prompt = (
+                     prompt = (
                         f"Restaurant {res_name} does ${monthly_sales:,} sales. "
                         f"Explain how they are likely losing 5% (${leak_val:,.0f}) to a combination of: "
                         "1. Theft/Voids, 2. Labor Bloat, and 3. Food Waste. "
