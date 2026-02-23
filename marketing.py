@@ -11,42 +11,17 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Futuristic Obsidian UI Styling - TYPO FIXED
+# Futuristic Obsidian UI Styling
 st.markdown("""
     <style>
-    /* Main Background */
-    .stApp {
-        background-color: #050505;
-        color: #e0e0e0;
-    }
-    /* Metric Glow */
-    [data-testid="stMetricValue"] {
-        color: #00c6ff !important;
-        font-family: 'Courier New', monospace;
-        text-shadow: 0 0 10px rgba(0, 198, 255, 0.5);
-    }
-    /* Button Aesthetics */
+    .stApp { background-color: #050505; color: #e0e0e0; }
+    [data-testid="stMetricValue"] { color: #00c6ff !important; font-family: 'Courier New', monospace; }
     .stButton > button {
         background: linear-gradient(135deg, #007bff 0%, #00c6ff 100%);
-        color: white;
-        border: none;
-        padding: 12px 30px;
-        border-radius: 8px;
-        font-weight: bold;
-        transition: 0.3s;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+        color: white; border: none; border-radius: 8px;
+        transition: 0.3s; font-weight: bold; letter-spacing: 1px;
     }
-    .stButton > button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 0 20px rgba(0, 123, 255, 0.4);
-    }
-    /* Input Overrides */
-    .stTextInput input, .stNumberInput input {
-        background-color: #111 !important;
-        color: #00c6ff !important;
-        border: 1px solid #333 !important;
-    }
+    .stButton > button:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 123, 255, 0.4); }
     </style>
     """, unsafe_allow_html=True)
 
@@ -55,7 +30,7 @@ if "gemini_key" in st.secrets:
     client = genai.Client(api_key=st.secrets["gemini_key"])
     MY_EMAIL = st.secrets["my_email"]
     GMAIL_PASS = st.secrets["gmail_pass"]
-    ADMIN_PASS = st.secrets.get("admin_password")
+    ADMIN_PASS = st.secrets.get("admin_password", "Titan97”)
 else:
     st.error("SYSTEM OFFLINE: Secrets Vault Not Found.")
     st.stop()
@@ -72,7 +47,6 @@ with st.sidebar:
     
     if st.session_state.is_member:
         st.success("✅ OPERATOR AUTHENTICATED")
-        st.info("Node: IL-72")
         if st.button("TERMINATE SESSION"):
             st.session_state.is_member = False
             st.rerun()
@@ -83,38 +57,26 @@ with st.sidebar:
             st.session_state.is_member = True
             st.rerun()
 
-    st.divider()
-    st.progress(100, text="System Integrity: Optimal")
-    st.caption("© 2026 ArmstrongLogic")
-
 # --- 5. THE DUAL-MODE ENGINE ---
 
-# MODE A: UNLIMITED MEMBER ACCESS (GEMINI 2.5 PRO)
 if st.session_state.is_member:
     st.markdown("## 📊 Forensic Audit Zone")
-    st.write("Deep-scanning POS structures for hidden waste.")
-    
     uploaded_file = st.file_uploader("Ingest POS .csv Data", type=['csv'])
     
     if uploaded_file:
         df = pd.read_csv(uploaded_file)
-        st.dataframe(df.head(10), use_container_width=True)
-        
         if st.button("EXECUTE NEURAL SCAN"):
-            with st.spinner("ARMSTRONGLOGIC decoding profit vectors..."):
+            with st.spinner("Gemini 2.5 Pro decoding profit vectors..."):
                 data_summary = df.describe().to_string()
                 try:
                     response = client.models.generate_content(
                         model="gemini-2.5-pro", 
-                        contents=f"Perform a forensic audit on this data: {data_summary}. Identify 3 profit leaks. Be direct, witty, and brilliant. ArmstrongLogic style."
+                        contents=f"Forensic Audit: Analyze {data_summary}. Identify leaks in theft, labor, and waste. ArmstrongLogic style."
                     )
-                    st.markdown("---")
                     st.info(response.text)
                     st.balloons()
                 except Exception as e:
                     st.error(f"Neural Error: {e}")
-
-# MODE B: GUEST CALCULATOR (3-STRIKE LIMIT)
 else:
     LIMIT = 3
     if st.session_state.leak_scans < LIMIT:
@@ -131,42 +93,30 @@ else:
         if st.button("ACTIVATE CALCULATION") and monthly_sales > 0 and target_email:
             with st.spinner("ARMSTRONGLOGIC Engine Analyzing..."):
                 try:
-
-                     prompt = (
+                    leak_val = monthly_sales * 0.05
+                    prompt = (          
                         f"Restaurant {res_name} does ${monthly_sales:,} sales. "
                         f"Explain how they are likely losing 5% (${leak_val:,.0f}) to a combination of: "
-                        "1. Theft/Voids, 2. Labor Bloat, and 3. Food Waste. "
+                        "1. Theft/Voids, 2. Labor Bloat, and 3. Food Waste. "   
                         "Keep it to 3 concise, punchy sentences. Mention ArmstrongLogic."
-                    )                   
-          response = client.models.generate_content(model="gemini-2.5-pro", contents=prompt)
+                    )
+                    
+                    # --- THIS LINE MUST BE INDENTED EXACTLY LIKE THIS ---
+                    response = client.models.generate_content(
+                        model="gemini-2.5-pro", 
+                        contents=prompt
+                    )
                     
                     st.session_state.leak_scans += 1
-                    
-                    # Email Logic
                     yag = yagmail.SMTP(MY_EMAIL, GMAIL_PASS)
-                    yag.send(to=[target_email, MY_EMAIL], 
-                             subject=f"ArmstrongLogic Report: {res_name}", 
-                             contents=f"Analysis:\n\n{response.text}")
+                    yag.send(to=[target_email, MY_EMAIL], subject=f"ArmstrongLogic Report: {res_name}", contents=response.text)
                     
-                    # UI Result
-                    leak_val = monthly_sales * 0.05
-                    st.metric("Estimated Monthly Leak", f"${leak_val:,.2f}", delta="Action Required", delta_color="inverse")
+                    st.metric("Detected Monthly Leak", f"${(monthly_sales * 0.05):,.2f}")
                     st.markdown(f"**Forensic Insight:** {response.text}")
-                    st.success(f"Report dispatched to {target_email}.")
                 except Exception as e:
                     st.error(f"Execution Error: {e}")
     else:
-        # THE PAYWALL
-        st.markdown(f"""
-        <div style="background: rgba(0, 123, 255, 0.1); padding: 40px; border-radius: 20px; border: 1px solid #007bff; text-align: center;">
-            <h1 style="color: #007bff;">LIMIT REACHED</h1>
-            <p style="font-size: 1.1rem;">Trial node exhausted. Unlock the full Forensic Suite.</p>
-            <br>
-            <a href="https://buy.stripe.com/your_trial_link" target="_blank" style="
-                background: linear-gradient(135deg, #007bff 0%, #00c6ff 100%);
-                color: white; padding: 20px 40px; text-decoration: none; 
-                font-weight: bold; border-radius: 12px; font-size: 1.1rem;
-                box-shadow: 0 0 20px rgba(0,123,255,0.4);
-            ">Activate Full Neural Mirror ($99/mo)</a>
-        </div>
-        """, unsafe_allow_html=True)
+        st.warning("⚠️ TRIAL LIMIT REACHED")
+        st.markdown("""<a href='https://buy.stripe.com/your_trial_link' style='text-decoration:none;'>
+        <div style='background:#007bff; color:white; padding:20px; border-radius:10px; text-align:center; font-weight:bold;'>
+        START 7-DAY TRIAL ($99/mo)</div></a>""", unsafe_allow_html=True)
