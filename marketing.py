@@ -80,7 +80,7 @@ if st.session_state.is_member:
     if uploaded_file:
         df = pd.read_csv(uploaded_file)
         if st.button("EXECUTE NEURAL SCAN"):
-            with st.spinner(“ARMSTRONGLOGIC decoding profit vectors..."):
+            with st.spinner("ARMSTRONGLOGIC decoding profit vectors..."):
                 data_summary = df.describe().to_string()
                 try:
                     prompt = (
