@@ -22,6 +22,7 @@ st.markdown("""
         transition: 0.3s; font-weight: bold; letter-spacing: 1px;
     }
     .stButton > button:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 123, 255, 0.4); }
+    hr { border-color: #333 !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -30,14 +31,21 @@ if "gemini_key" in st.secrets:
     client = genai.Client(api_key=st.secrets["gemini_key"])
     MY_EMAIL = st.secrets["my_email"]
     GMAIL_PASS = st.secrets["gmail_pass"]
-    ADMIN_PASS = st.secrets.get("admin_password", "Titan97")
+    ADMIN_PASS = st.secrets.get("admin_password", "Titan97”)
 else:
     st.error("SYSTEM OFFLINE: Secrets Vault Not Found.")
     st.stop()
 
-# --- 3. SESSION LOGIC ---
+# --- 3. SESSION & REDIRECT LOGIC ---
 if 'is_member' not in st.session_state: st.session_state.is_member = False
 if 'leak_scans' not in st.session_state: st.session_state.leak_scans = 0
+
+# Handle Payment Success Redirects
+query_params = st.query_params
+if query_params.get("status") == "success" or query_params.get("tier") == "sovereign":
+    st.balloons()
+    st.success("💎 AUTHORIZATION GRANTED: Welcome to the ArmstrongLogic Ecosystem.")
+    st.info("Use your Neural Signature in the sidebar to unlock full forensic capabilities.")
 
 # --- 4. BRANDED SIDEBAR ---
 with st.sidebar:
@@ -56,31 +64,41 @@ with st.sidebar:
         if access_key == ADMIN_PASS:
             st.session_state.is_member = True
             st.rerun()
+    st.divider()
+    st.info("Node Status: Optimal\nRegion: IL-72 | Ottawa")
 
 # --- 5. THE DUAL-MODE ENGINE ---
 
 if st.session_state.is_member:
+    # --- MODE A: FORENSIC AUDIT ZONE (PAID) ---
     st.markdown("## 📊 Forensic Audit Zone")
+    st.write("Ingest POS data to mirror hidden profit leaks in Labor, Food Waste, and Theft.")
+    
     uploaded_file = st.file_uploader("Ingest POS .csv Data", type=['csv'])
     
     if uploaded_file:
         df = pd.read_csv(uploaded_file)
         if st.button("EXECUTE NEURAL SCAN"):
-            with st.spinner("Gemini 2.5 Pro decoding profit vectors..."):
+            with st.spinner(“ARMSTRONGLOGIC decoding profit vectors..."):
                 data_summary = df.describe().to_string()
                 try:
-                    response = client.models.generate_content(
-                        model="gemini-2.5-pro", 
-                        contents=f"Forensic Audit: Analyze {data_summary}. Identify leaks in theft, labor, and waste. ArmstrongLogic style."
+                    prompt = (
+                        f"Analyze this POS data summary: {data_summary}. "
+                        "Identify specific leaks in: 1. Theft/Voids, 2. Labor Over-scheduling, 3. Food Waste. "
+                        "Provide a 3-step surgical action plan to recover these profits. "
+                        "Style: Direct, brilliant, and authoritative."
                     )
+                    response = client.models.generate_content(model="gemini-2.5-pro", contents=prompt)
+                    st.markdown("### 🧬 Forensic Insight")
                     st.info(response.text)
                     st.balloons()
                 except Exception as e:
                     st.error(f"Neural Error: {e}")
 else:
+    # --- MODE B: GUEST CALCULATOR & PAYWALL ---
     LIMIT = 3
     if st.session_state.leak_scans < LIMIT:
-        st.markdown(f"## 🛡️ Armstrong Logic | Leak Calculator")
+        st.markdown("## 🛡️ Armstrong Logic | Leak Calculator")
         st.write(f"Node Cycles Remaining: {LIMIT - st.session_state.leak_scans}")
         
         col1, col2 = st.columns(2)
@@ -94,6 +112,7 @@ else:
             with st.spinner("ARMSTRONGLOGIC Engine Analyzing..."):
                 try:
                     leak_val = monthly_sales * 0.05
+                    # TRI-VECTOR PROMPT
                     prompt = (          
                         f"Restaurant {res_name} does ${monthly_sales:,} sales. "
                         f"Explain how they are likely losing 5% (${leak_val:,.0f}) to a combination of: "
@@ -101,22 +120,11 @@ else:
                         "Keep it to 3 concise, punchy sentences. Mention ArmstrongLogic."
                     )
                     
-                    # --- THIS LINE MUST BE INDENTED EXACTLY LIKE THIS ---
-                    response = client.models.generate_content(
-                        model="gemini-2.5-pro", 
-                        contents=prompt
-                    )
+                    response = client.models.generate_content(model="gemini-2.5-pro", contents=prompt)
                     
                     st.session_state.leak_scans += 1
-                    yag = yagmail.SMTP(MY_EMAIL, GMAIL_PASS)
-                    yag.send(to=[target_email, MY_EMAIL], subject=f"ArmstrongLogic Report: {res_name}", contents=response.text)
                     
-                    st.metric("Detected Monthly Leak", f"${(monthly_sales * 0.05):,.2f}")
-                    st.markdown(f"**Forensic Insight:** {response.text}")
-                except Exception as e:
-                    st.error(f"Execution Error: {e}")
-    else:
-        st.warning("⚠️ TRIAL LIMIT REACHED")
-        st.markdown("""<a href='https://buy.stripe.com/your_trial_link' style='text-decoration:none;'>
-        <div style='background:#007bff; color:white; padding:20px; border-radius:10px; text-align:center; font-weight:bold;'>
-        START 7-DAY TRIAL ($99/mo)</div></a>""", unsafe_allow_html=True)
+                    # Automated Dispatch
+                    yag = yagmail.SMTP(MY_EMAIL, GMAIL_PASS)
+                    yag.send(
+                        to=[target_email, MY_EMAIL],
