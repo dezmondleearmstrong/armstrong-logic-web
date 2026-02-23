@@ -131,8 +131,14 @@ else:
         if st.button("ACTIVATE CALCULATION") and monthly_sales > 0 and target_email:
             with st.spinner("ARMSTRONGLOGIC Engine Analyzing..."):
                 try:
-                    prompt = f"Restaurant {res_name} does ${monthly_sales} sales. Explain 5% loss to theft/voids in 2 sentences. Mention ArmstrongLogic."
-                    response = client.models.generate_content(model="gemini-2.5-pro", contents=prompt)
+
+         prompt = (
+                        f"Restaurant {res_name} does ${monthly_sales:,} sales. "
+                        f"Explain how they are likely losing 5% (${leak_val:,.0f}) to a combination of: "
+                        "1. Theft/Voids, 2. Labor Bloat, and 3. Food Waste. "
+                        "Keep it to 3 concise, punchy sentences. Mention ArmstrongLogic."
+                    )                   
+          response = client.models.generate_content(model="gemini-2.5-pro", contents=prompt)
                     
                     st.session_state.leak_scans += 1
                     
