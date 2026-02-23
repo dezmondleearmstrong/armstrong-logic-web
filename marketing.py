@@ -31,8 +31,7 @@ if "gemini_key" in st.secrets:
     client = genai.Client(api_key=st.secrets["gemini_key"])
     MY_EMAIL = st.secrets["my_email"]
     GMAIL_PASS = st.secrets["gmail_pass"]
-    ADMIN_PASS = st.secrets.get("admin_password","Titan97"
-X)
+    ADMIN_PASS = st.secrets.get("admin_password", "Titan97")
 else:
     st.error("SYSTEM OFFLINE: Secrets Vault Not Found.")
     st.stop()
