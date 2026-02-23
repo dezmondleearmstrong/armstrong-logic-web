@@ -130,4 +130,10 @@ else:
                         to=[target_email, MY_EMAIL], 
                         subject=f"ArmstrongLogic Forensic Report: {res_name}", 
                         contents=response.text
-                    ) # <--- This is the bracket that was missing!  
+                    )
+                    
+                    st.metric("Detected Monthly Leak", f"${leak_val:,.2f}")
+                    st.markdown(f"**Forensic Insight:** {response.text}")
+                    st.success(f"Report dispatched to {target_email}.")
+                except Exception as e:
+                    st.error(f"Execution Error: {e}")
