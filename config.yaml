@@ -1,0 +1,14 @@
+cookie:
+  expiry_days: 30
+  key: armstrong_logic_ultra_secure_key_2026
+  name: armstrong_logic_auth
+credentials:
+  usernames:
+    dlee:
+      email: dezmond28@armstronglogic.com
+      logged_in: true
+      name: Dezmond Armstrong
+      password: $2b$12$HBI50c.aIYAmsr3nIYhQQea/Vl.9h3htcuGFQ1eNAlcoxwOB8gni2
+preauthorized:
+  emails:
+  - admin@armstronglogic.com
