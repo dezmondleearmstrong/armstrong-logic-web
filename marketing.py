@@ -78,9 +78,7 @@ def send_dual_reports(client_email, biz_name, leak_amt, annual_amt, prophet_text
                 msg.attach(MIMEText(report_body, 'plain'))
                 server.send_message(msg)
         return True
-    except Exception as e:
-        print(f"SMTP Error: {e}")
-        return False
+    except: return False
 
 # --- UI INTERFACE ---
 st.markdown("""
@@ -104,7 +102,7 @@ else:
         m_sales = st.number_input("MONTHLY SALES ($)", min_value=0, value=75000)
         m_labor = st.number_input("MONTHLY LABOR ($)", min_value=0, value=22000)
 
-    if st.button("EXECUTE SHIELD DIAGNOSTIC"):
+    if st.button("EXECUTE 🛡️ARMSTRONGLOGIC DIAGNOSTIC"):
         if not res_name or not res_email:
             st.error("HANDSHAKE FAILED: Identity required.")
         else:
@@ -139,7 +137,7 @@ else:
 # --- 🔱 PERSISTENT DISPLAY & SUCCESS MESSAGE ---
 if st.session_state.last_report:
     report = st.session_state.last_report
-    st.success(f"🛡️ ArmstrongLogic sent a report to {report['email']}. Thank you.")
+    st.success(f" 🛡️ArmstrongLogic sent a report to {report['email']}. Thank you.")
     
     st.markdown(f"""
     <div class='report-box'>
