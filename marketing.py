@@ -6,9 +6,9 @@ from google import genai
 from datetime import datetime
 
 # --- SOVEREIGN BRANDING & CORE DESIGN ---
-st.set_page_config(page_title="ArmstrongLogic | Sovereign Audit", page_icon="🛡️", layout="wide")
+st.set_page_config(page_title="ArmstrongLogic | Calculator", page_icon="🛡️", layout="wide")
 
-# Persistent State
+# Persistent State Logic
 if "usage_count" not in st.session_state: st.session_state.usage_count = 0
 if "last_report" not in st.session_state: st.session_state.last_report = None
 
@@ -17,10 +17,7 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght @0,14..32,100..900;1,14..32,100..900&display=swap');
 
-    .stApp {
-        background-color: #050505;
-        font-family: 'Inter', sans-serif;
-    }
+    .stApp { background-color: #050505; font-family: 'Inter', sans-serif; }
 
     /* Glassmorphism Surface */
     .main-surface {
@@ -81,7 +78,7 @@ def send_dual_reports(client_email, biz_name, leak_amt, annual_amt, prophet_text
     try:
         my_email = st.secrets["my_email"]
         password = st.secrets["gmail_pass"]
-        report_body = f"🛡️ ARMSTRONGLOGIC SOVEREIGN AUDIT\nENTITY: {biz_name.upper()}\nMONTHLY LEAKAGE: ${leak_amt:,.2f}\nANNUAL RECLAMATION: ${annual_amt:,.2f}\n\nPROPHET INSIGHT:\n{prophet_text}"
+        report_body = f"🛡️ ARMSTRONGLOGIC AUDIT\nENTITY: {biz_name.upper()}\nMONTHLY LEAKAGE: ${leak_amt:,.2f}\nANNUAL RECLAMATION: ${annual_amt:,.2f}\n\nPROPHET INSIGHT:\n{prophet_text}"
         
         with smtplib.SMTP('smtp.gmail.com', 587) as server:
             server.starttls()
@@ -100,15 +97,17 @@ def send_dual_reports(client_email, biz_name, leak_amt, annual_amt, prophet_text
 st.markdown("""
     <div class="sovereign-header">
         <p>Optimize Your Reality</p>
-        <h1>Profit Watchdog</h1>
+        <h1>🛡️ArmstrongLogic | Calculator</h1>
     </div>
     """, unsafe_allow_html=True)
 
 st.markdown('<div class="main-surface">', unsafe_allow_html=True)
 
+# TRIAL LIMIT LOGIC
 if st.session_state.usage_count >= 3:
-    st.markdown("<p style='text-align:center; color:rgba(255,75,75,0.6); letter-spacing: 2px;'>TRIAL LIMIT REACHED. CONTACT DEZMOND.</p>", unsafe_allow_html=True)
+    st.error("TRIAL LIMIT EXCEEDED. CONTACT: DEZMOND28 @ARMSTRONGLOGIC.COM")
 else:
+    st.markdown(f"<p style='text-align: center; color: rgba(255,255,255,0.2); font-size: 0.7rem; letter-spacing: 0.1em;'>DIAGNOSTIC {st.session_state.usage_count}/3</p>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
         res_name = st.text_input("ENTITY NAME", placeholder="Name of establishment")
@@ -117,13 +116,14 @@ else:
         m_sales = st.number_input("MONTHLY SALES", min_value=0, value=75000)
         m_labor = st.number_input("MONTHLY LABOR", min_value=0, value=22000)
 
-    if st.button("EXECUTE DIAGNOSTIC"):
+    if st.button("EXECUTE ARMSTRONGLOGIC DIAGNOSTIC"):
         if not res_name or not res_email:
             st.error("Handshake failed: Identity required.")
         else:
             leak = (m_sales * 0.08) + (m_labor * 0.12)
             
-            with st.spinner("Synchronizing Soul..."):
+            # THE SOUL ENGINE LOADING STATE
+            with st.spinner("ARMSTRONGLOGIC ANALYZING..."):
                 # UPLINK: GEMINI 3.1 PRO PREVIEW
                 client = genai.Client(api_key=st.secrets["gemini_key"])
                 response = client.models.generate_content(
@@ -144,9 +144,11 @@ else:
 
 st.markdown('</div>', unsafe_allow_html=True)
 
-# --- RESULTS ---
+# --- PERSISTENT SUCCESS & RESULTS ---
 if st.session_state.last_report:
     report = st.session_state.last_report
+    st.success(f" 🛡️ArmstrongLogic sent a report to {report['email']}. Thank you.")
+    
     st.markdown(f"""
     <div class='report-box'>
         <p style='color: rgba(255,255,255,0.2); font-size: 9px; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 20px;'>Synthesis Complete</p>
@@ -159,7 +161,7 @@ if st.session_state.last_report:
     </div>
     """, unsafe_allow_html=True)
     
-    if st.button("RESET"):
+    if st.button("NEW DIAGNOSTIC"):
         st.session_state.last_report = None
         st.rerun()
 
