@@ -2,4 +2,4 @@ PyYAML
 yagmail
 google-genai
 pandas
-streamlit
+streamlit>=1.40.0
