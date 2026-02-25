@@ -12,66 +12,76 @@ st.set_page_config(page_title="ArmstrongLogic | Calculator", page_icon="🛡️"
 if "usage_count" not in st.session_state: st.session_state.usage_count = 0
 if "last_report" not in st.session_state: st.session_state.last_report = None
 
-# FIXED CSS: Adjusts label visibility and removes unnecessary vertical gaps
+# FIXED CSS: Forces label visibility and eliminates container gaps
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
-    /* Global Overrides */
+    /* Global Foundation */
     .stApp {
         background-color: #050505;
         font-family: 'Inter', sans-serif;
     }
 
-    /* Fixed Input Spacing & Text Visibility */
-    .stTextInput label, .stNumberInput label {
-        color: rgba(255, 255, 255, 0.4) !important;
-        font-size: 0.75rem !important;
+    /* THE FIX: Force Label Visibility and Position */
+    div[data-testid="stWidgetLabel"] p {
+        color: #ffffff !important; /* Force labels to be white */
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.1em !important;
-        margin-bottom: -15px !important; /* Reduces the gap above input */
+        margin-bottom: -10px !important; /* Pull the box up to the label */
     }
 
+    /* THE FIX: Remove the 'Black Space' Gap */
+    div[data-testid="stVerticalBlock"] > div {
+        padding-top: 0rem !important;
+        padding-bottom: 0rem !important;
+    }
+
+    /* Input Field Styling */
     .stNumberInput input, .stTextInput input {
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background-color: rgba(255, 255, 255, 0.07) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
         border-radius: 12px !important;
-        color: #ffffff !important; /* Explicitly white text for visibility */
-        padding: 12px !important;
+        color: #ffffff !important; /* White text when typing */
+        padding: 15px !important;
+        font-size: 1.1rem !important;
     }
 
-    /* Glassmorphism Surface */
+    /* Main Surface Container */
     .main-surface {
         background: rgba(255, 255, 255, 0.03);
         backdrop-filter: blur(50px) saturate(180%);
+        -webkit-backdrop-filter: blur(50px) saturate(180%);
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 40px;
-        padding: 40px 60px;
+        padding: 40px;
         box-shadow: 0 40px 120px rgba(0,0,0,0.6);
-        color: #ffffff;
-        margin-top: -20px; /* Pulls surface closer to header */
+        margin-top: -30px;
     }
 
-    /* Sovereign Button */
+    /* Sovereign Button Styling */
     .stButton>button {
         background: #ffffff !important;
         color: #000000 !important;
         border-radius: 50px !important;
         border: none !important;
-        padding: 15px 40px !important;
-        font-weight: 600 !important;
-        transition: 0.5s cubic-bezier(0.2, 0, 0.2, 1) !important;
+        padding: 20px !important;
+        font-weight: 700 !important;
         width: 100%;
+        margin-top: 20px;
+        transition: 0.4s ease;
     }
     
     .stButton>button:hover {
-        transform: scale(1.02);
-        box-shadow: 0 0 40px rgba(255,255,255,0.2);
+        transform: scale(1.01);
+        box-shadow: 0 0 50px rgba(255,255,255,0.2);
     }
 
-    .sovereign-header { text-align: center; margin-bottom: 20px; }
-    .sovereign-header h1 { font-weight: 200; letter-spacing: -0.05em; font-size: 3.5rem; color: #ffffff; margin-bottom: 0px; }
-    .sovereign-header p { color: rgba(255, 255, 255, 0.2); letter-spacing: 0.4em; text-transform: uppercase; font-size: 10px; font-weight: 800; }
+    .sovereign-header { text-align: center; margin-bottom: 30px; }
+    .sovereign-header h1 { font-weight: 200; font-size: 3rem; color: #ffffff; }
+    .sovereign-header p { color: rgba(255, 255, 255, 0.4); letter-spacing: 0.4em; text-transform: uppercase; font-size: 10px; }
     
     /* Success Message Fix */
     .stSuccess {
