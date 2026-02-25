@@ -5,14 +5,11 @@ from email.mime.multipart import MIMEMultipart
 from google import genai
 from datetime import datetime
 
-# --- SOVEREIGN BRANDING & SHIELD THEME ---
+# --- BRANDING & PERSISTENCE ---
 st.set_page_config(page_title="ArmstrongLogic | Calculator", page_icon="🛡️", layout="wide")
 
-# --- PERSISTENCE ENGINE (The Memory Fix) ---
-if "usage_count" not in st.session_state:
-    st.session_state.usage_count = 0
-if "last_report" not in st.session_state:
-    st.session_state.last_report = None
+if "usage_count" not in st.session_state: st.session_state.usage_count = 0
+if "last_report" not in st.session_state: st.session_state.last_report = None
 
 st.markdown("""
     <style>
@@ -47,18 +44,10 @@ st.markdown("""
     .word-logic { font-size: 8vw; letter-spacing: 2.2vw; margin-left: 2.2vw; }
     .word-calculator { font-size: 3.5vw; letter-spacing: 1.5vw; margin-left: 1.5vw; margin-top: 10px; color: #ffffff; text-shadow: 0px 0px 10px #ffffff; }
 
-    .stNumberInput>div>div>input, .stTextInput>div>div>input { 
-        background-color: #0a0a0a; color: #00f2ff; border: 1px solid #00f2ff; border-radius: 0px; 
-    }
-    .stButton>button { 
-        background-color: #00f2ff; color: #000; border-radius: 0px; width: 100%; 
-        font-weight: bold; border: none; height: 3.5em; transition: 0.5s;
-    }
+    .stNumberInput>div>div>input, .stTextInput>div>div>input { background-color: #0a0a0a; color: #00f2ff; border: 1px solid #00f2ff; border-radius: 0px; }
+    .stButton>button { background-color: #00f2ff; color: #000; border-radius: 0px; width: 100%; font-weight: bold; border: none; height: 3.5em; transition: 0.5s; }
     .stButton>button:hover { background-color: #ffffff; box-shadow: 0px 0px 30px #00f2ff; }
-    .report-box { 
-        padding: 40px; border: 1px solid #00f2ff; background: #050505; 
-        box-shadow: inset 0px 0px 20px #00f2ff; margin-top: 25px;
-    }
+    .report-box { padding: 40px; border: 1px solid #00f2ff; background: #050505; box-shadow: inset 0px 0px 20px #00f2ff; margin-top: 25px; }
     
     /* Corrected pulse keyframes for web */
     @keyframes pulse { 
@@ -70,25 +59,28 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- DUAL-SENTINEL EMAIL LOGIC ---
+# --- DUAL-SENTINEL EMAIL ---
 def send_dual_reports(client_email, biz_name, leak_amt, annual_amt, prophet_text):
     try:
         my_email = st.secrets["my_email"]
         password = st.secrets["gmail_pass"]
-        report_body = f"🛡️ ARMSTRONGLOGIC SOVEREIGN AUDIT\nENTITY: {biz_name.upper()}\nLEAKAGE: ${leak_amt:,.2f}\nANNUAL: ${annual_amt:,.2f}\n\nINSIGHT:\n{prophet_text}"
-        for recipient in [client_email, my_email]:
-            msg = MIMEMultipart()
-            msg['From'] = my_email
-            msg['To'] = recipient
-            msg['Subject'] = f"🛡️ RECOVERY AUDIT: {biz_name.upper()}"
-            msg.attach(MIMEText(report_body, 'plain'))
-            server = smtplib.SMTP('smtp.gmail.com', 587)
+        report_body = f"🛡️ ARMSTRONGLOGIC SOVEREIGN AUDIT\nENTITY: {biz_name.upper()}\nMONTHLY LEAKAGE: ${leak_amt:,.2f}\nANNUAL RECLAMATION: ${annual_amt:,.2f}\n\nPROPHET INSIGHT:\n{prophet_text}"
+        
+        # Combined sending logic to reduce server handshakes
+        with smtplib.SMTP('smtp.gmail.com', 587) as server:
             server.starttls()
             server.login(my_email, password)
-            server.send_message(msg)
-            server.quit()
+            for recipient in [client_email, my_email]:
+                msg = MIMEMultipart()
+                msg['From'] = my_email
+                msg['To'] = recipient
+                msg['Subject'] = f"🛡️ RECOVERY AUDIT: {biz_name.upper()}"
+                msg.attach(MIMEText(report_body, 'plain'))
+                server.send_message(msg)
         return True
-    except: return False
+    except Exception as e: 
+        print(f"SMTP Block: {e}")
+        return False
 
 # --- UI INTERFACE ---
 st.markdown("""
@@ -100,12 +92,10 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Gate logic
 if st.session_state.usage_count >= 3:
     st.error("TRIAL LIMIT EXCEEDED. CONTACT: DEZMOND28 @ARMSTRONGLOGIC.COM")
 else:
     st.write(f"<p style='text-align: center; color: #00f2ff;'>DIAGNOSTIC LIMIT: {st.session_state.usage_count}/3</p>", unsafe_allow_html=True)
-    
     col1, col2 = st.columns(2)
     with col1:
         res_name = st.text_input("RESTAURANT NAME")
@@ -130,22 +120,27 @@ else:
                 contents=f"Analyze {res_name}: ${m_sales} sales, ${m_labor} labor. Monthly leak: ${leak}. Provide 2 authoritative sentences on recovery."
             )
             
-            # 🔱 STORE IN MEMORY
+            # STORE DATA BEFORE EMAIL
             st.session_state.last_report = {
                 "name": res_name.upper(),
                 "leak": leak,
                 "annual": leak * 12,
-                "insight": response.text
+                "insight": response.text,
+                "email": res_email
             }
-            
             st.session_state.usage_count += 1
+            
+            # TRIGGER EMAIL (With speed optimization)
             send_dual_reports(res_email, res_name, leak, leak*12, response.text)
+            
             placeholder.empty()
             st.rerun()
 
-# --- 🔱 PERSISTENT DISPLAY (Does not flash) ---
+# --- 🔱 PERSISTENT DISPLAY & SUCCESS MESSAGE ---
 if st.session_state.last_report:
     report = st.session_state.last_report
+    st.success(f"🔱 ArmstrongLogic sent a report to {report['email']}. Thank you.")
+    
     st.markdown(f"""
     <div class='report-box'>
         <h2 style='color: #00f2ff; text-align: center;'>🛡️ OFFICIAL RECOVERY REPORT</h2>
@@ -161,4 +156,4 @@ if st.session_state.last_report:
         st.rerun()
 
 st.divider()
-st.caption("SYSTEM STATUS: SECURED // ARCHITECTURE: SOVEREIGN")
+st.caption("SYSTEM STATUS: SECURED // ARCHITECTURE: Dezmond Armstrong")
