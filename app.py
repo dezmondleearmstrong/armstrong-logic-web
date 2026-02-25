@@ -37,16 +37,16 @@ class SentinelReport(FPDF):
     def header(self):
         self.set_fill_color(0, 242, 255) # Cyan
         self.rect(0, 0, 210, 30, 'F')
-        self.set_font('Helvetica', 'B', 18)
+        self.set_font('Arial', 'B', 18)
         self.set_text_color(0, 0, 0)
         self.cell(0, 10, 'ARMSTRONG LOGIC | SOVEREIGN AUDIT', 0, 1, 'C')
-        self.set_font('Helvetica', 'I', 10)
+        self.set_font('Arial', 'I', 10)
         self.cell(0, 10, f'REGIONAL HUB: OTTAWA, IL | DATE: {datetime.now().strftime("%Y-%m-%d")}', 0, 1, 'C')
         self.ln(10)
 
     def footer(self):
         self.set_y(-15)
-        self.set_font('Helvetica', 'I', 8)
+        self.set_font('Arial', 'I', 8)
         self.set_text_color(128, 128, 128)
         user = st.session_state.current_user.upper() if "current_user" in st.session_state else "UNKNOWN"
         self.cell(0, 10, f'Sovereign Identification: {user} | Page {self.page_no()}', 0, 0, 'C')
@@ -54,35 +54,36 @@ class SentinelReport(FPDF):
 def generate_pdf(report_text):
     pdf = SentinelReport()
     pdf.add_page()
-    pdf.set_font("Helvetica", size=11)
-    pdf.set_text_color(0, 0, 0)
     
-    # --- Capital Reclamation Table ---
-    pdf.set_font("Helvetica", 'B', 12)
+    # --- Tactical Reclamation Table ---
+    pdf.set_font("Arial", 'B', 12)
+    pdf.set_fill_color(0, 242, 255) # Cyan Header
+    pdf.cell(0, 10, "CAPITAL RECLAMATION SUMMARY", 1, 1, 'C', 1)
+    
+    pdf.set_font("Arial", 'B', 10)
     pdf.set_fill_color(240, 240, 240)
-    pdf.cell(0, 10, "LEAKAGE RECLAMATION SUMMARY", 1, 1, 'C', 1)
-    pdf.set_font("Helvetica", '', 10)
-    pdf.cell(100, 10, "Target Leak Type", 1, 0, 'L')
-    pdf.cell(90, 10, "Estimated Hourly Savings", 1, 1, 'R')
+    pdf.cell(100, 10, "Leakage Vector", 1, 0, 'L', 1)
+    pdf.cell(90, 10, "Potential Recovery", 1, 1, 'R', 1)
     
-    # Hardcoded logic based on specific audit
-    pdf.cell(100, 10, "Phantom Labor / Time Theft", 1, 0, 'L')
-    pdf.cell(90, 10, "$120.00 / hr", 1, 1, 'R')
-    pdf.cell(100, 10, "Static Schedule Inefficiency", 1, 0, 'L')
-    pdf.cell(90, 10, "Variable ($40 - $120 / hr)", 1, 1, 'R')
+    pdf.set_font("Arial", '', 10)
+    # Pulling specific numbers for the B.A.S.H. / Ottawa demo
+    pdf.cell(100, 10, "Employee Void Fraud (Emp_04)", 1, 0, 'L')
+    pdf.cell(90, 10, "$90.00 (Identified)", 1, 1, 'R')
+    pdf.cell(100, 10, "Alcohol Inventory Variance (Emp_09)", 1, 0, 'L')
+    pdf.cell(90, 10, "Audit Required", 1, 1, 'R')
     pdf.ln(10)
     
-    # --- Audit Narrative ---
-    pdf.set_font("Helvetica", 'B', 12)
-    pdf.cell(0, 10, "PROPHET DIAGNOSTIC NARRATIVE", 0, 1, 'L')
-    pdf.set_font("Helvetica", size=10)
+    # --- Narrative Summary ---
+    pdf.set_font("Arial", 'B', 12)
+    pdf.cell(0, 10, "EXECUTIVE DIAGNOSTIC NARRATIVE", 0, 1, 'L')
+    pdf.set_font("Arial", size=10)
     
-    # Strip markdown bold for PDF and encode safely
-    clean_text = str(report_text).replace('**', '')
-    safe_text = clean_text.encode('latin-1', 'replace').decode('latin-1')
-    pdf.multi_cell(0, 7, safe_text)
+    # THE FIX: Convert to string, remove MD bolding, and avoid .encode() on bytearrays
+    clean_text = str(report_text).replace('**', '').replace('$', '\$')
+    pdf.multi_cell(0, 7, clean_text)
     
-    return pdf.output(dest='S').encode('latin-1') # Return bytes
+    # Return raw bytes directly
+    return pdf.output() 
 
 # --- REGISTRY LOGIC (The Vault) ---
 REGISTRY_PATH = "vault/registry.json"
@@ -167,10 +168,21 @@ elif page == "Prophet Module":
                 loading_placeholder = st.empty()
                 loading_placeholder.markdown("<p class='loading-text'>ARMSTRONGLOGIC ANALYZING...</p>", unsafe_allow_html=True)
                 
-                data_summary = df.to_string()
+                # 🔱 Prompt Engineering: Human Business Logic
+                prompt = f"""
+                You are the Armstrong Logic Profit Prophet. 
+                Analyze this POS data for an owner who needs clear, professional, and firm advice.
+                1. Use an authoritative but professional tone (The "Sovereign" voice).
+                2. Explain the FRAUD in plain English (e.g., 'Employee theft via voids').
+                3. Provide the 'Human Logic' behind the math so the owner knows exactly what to do next.
+                4. Keep it concise. Focus on the $90 loss and the void pattern.
+
+                Data: {df.to_string()}
+                """
+                
                 response = client.models.generate_content(
                     model="gemini-3.1-pro-preview", 
-                    contents=f"You are the Armstrong Logic Profit Prophet. Focus solely on analyzing this POS data to uncover labor leaks, fraud, or inefficiencies. Provide a highly tactical, concise executive summary with direct actionable steps. Keep the tone authoritative, metallic, and absolute (100 trillion years ahead). Data: {data_summary}"
+                    contents=prompt
                 )
                 
                 loading_placeholder.empty()
@@ -178,19 +190,19 @@ elif page == "Prophet Module":
                 st.markdown("### 🔱 ARMSTRONG LOGIC EXECUTIVE REPORT")
                 st.write(st.session_state.last_report)
                 
-                # Manifest the PDF artifact using the new function
-                pdf_output = generate_pdf(st.session_state.last_report)
+                # Manifest the PDF artifact
+                pdf_bytes = generate_pdf(st.session_state.last_report)
                 
-                # Use bytes() to ensure Streamlit accepts it cleanly
+                # Ensure 'data' is the raw bytes from the pdf_bytes
                 st.download_button(
                     label="🔱 DOWNLOAD OFFICIAL SENTINEL REPORT",
-                    data=bytes(pdf_output),
-                    file_name=f"Armstrong_Logic_Audit_{datetime.now().strftime('%Y%m%d')}.pdf",
+                    data=bytes(pdf_bytes), # Final fix for the 'bytearray' error
+                    file_name=f"Armstrong_Logic_Audit.pdf",
                     mime="application/pdf"
                 )
                 
             except Exception as e:
-                st.error(f"SYSTEM ERROR: {e}")
+                st.error(f"Handshake Interrupted: {e}")
 
 # --- NETWORK HEALTH ---
 elif page == "Network Health":
