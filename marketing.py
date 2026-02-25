@@ -37,9 +37,9 @@ col1, col2 = st.columns(2)
 with col1:
     st.write("### 🛡️ THE LEAKAGE PROBLEM")
     st.info("""
-    - Hidden labor fraud and 'phantom' hours.
-    - Systemic POS inefficiencies.
-    - Unoptimized staffing during demand troughs.
+    - Undetected labor fraud and phantom hours.
+    - Systemic POS operational entropy.
+    - Unoptimized staffing during variable demand.
     """)
 
 with col2:
@@ -54,7 +54,7 @@ st.divider()
 
 # --- PUBLIC PROPHET DEMO ---
 st.write("### ⚡ PREVIEW THE PROPHET ENGINE")
-st.write("Upload a sample data slice to experience the depth of Armstrong Logic.")
+st.write("Upload a data slice to observe the precision of Armstrong Logic.")
 
 test_upload = st.file_uploader("Upload Sample Data (.csv)", type="csv")
 
@@ -68,13 +68,13 @@ if test_upload:
             placeholder = st.empty()
             placeholder.markdown("<p class='loading-text'>ARMSTRONGLOGIC ANALYZING...</p>", unsafe_allow_html=True)
             
-            # Read file data
+            # We must decode the bytes into a string so the LLM can read the CSV text properly
             csv_data = test_upload.getvalue().decode("utf-8")
             
-            # Execute 3.1 Pro Logic
+            # Execute 3.1 Pro Logic - Pure Business Focus
             response = client.models.generate_content(
                 model="gemini-3.1-pro-preview",
-                contents=f"Analyze this sample data for inefficiencies and provide a professional, absolute executive summary: {csv_data}"
+                contents=f"You are the Armstrong Logic Profit Prophet. Analyze this data for inefficiencies and provide a professional, authoritative executive summary. Focus on fiscal recovery: {csv_data}"
             )
             
             placeholder.empty()
@@ -82,7 +82,8 @@ if test_upload:
             st.write(response.text)
             
         except Exception as e:
-            st.error(f"HANDSHAKE INTERRUPTED: {e}")
+            # Mask technical errors for public users, but provide an actionable error message
+            st.error("HANDSHAKE INTERRUPTED: Please contact an authorized representative.")
 
 st.divider()
-st.caption("SYSTEM STATUS: OPTIMAL // ARCHITECTURE: 100 TRILLION YEARS AHEAD")
+st.caption("SYSTEM STATUS: OPTIMAL // ARCHITECTURE: SOVEREIGN")
