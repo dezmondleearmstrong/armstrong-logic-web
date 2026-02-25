@@ -15,19 +15,34 @@ st.markdown("""
     <style>
     .main { background-color: #000000; color: #00f2ff; font-family: 'Courier New', monospace; }
     
-    /* Calibrated Futuristic Title */
-    .futuristic-title {
-        font-size: 2.5rem; /* Reduced slightly for perfect fit */
+    /* Flex-Column Sovereign Stack */
+    .sovereign-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border-bottom: 2px solid #00f2ff;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+    }
+    .stack-shield {
+        font-size: 5vw;
+        margin-bottom: -1vw; /* pull text closer */
+        text-shadow: 0px 0px 15px #00f2ff;
+    }
+    .stack-word {
         font-weight: 900;
         color: #00f2ff;
         text-transform: uppercase;
-        letter-spacing: 6px; /* Tightened for professionalism */
         text-shadow: 0px 0px 15px #00f2ff;
-        text-align: center;
-        border-bottom: 2px solid #00f2ff;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
+        line-height: 0.85; /* Tight vertical stacking */
+        margin: 0;
+        padding: 0;
     }
+    .word-armstrong { font-size: 8vw; letter-spacing: 0.8vw; margin-left: 0.8vw; }
+    .word-logic { font-size: 8vw; letter-spacing: 2.2vw; margin-left: 2.2vw; }
+    .word-calculator { font-size: 3.5vw; letter-spacing: 1.5vw; margin-left: 1.5vw; margin-top: 10px; color: #ffffff; text-shadow: 0px 0px 10px #ffffff; }
     
     .stNumberInput>div>div>input, .stTextInput>div>div>input { 
         background-color: #0a0a0a; color: #00f2ff; border: 1px solid #00f2ff; border-radius: 0px; 
@@ -81,7 +96,14 @@ def send_dual_reports(client_email, biz_name, leak_amt, annual_amt, prophet_text
     except: return False
 
 # --- UI ---
-st.markdown("<h1 class='futuristic-title'>🛡️ ARMSTRONGLOGIC CALCULATOR</h1>", unsafe_allow_html=True)
+st.markdown("""
+<div class='sovereign-stack'>
+    <div class='stack-shield'>🛡️</div>
+    <div class='stack-word word-armstrong'>ARMSTRONG</div>
+    <div class='stack-word word-logic'>LOGIC</div>
+    <div class='stack-word word-calculator'>CALCULATOR</div>
+</div>
+""", unsafe_allow_html=True)
 
 if st.session_state.usage_count >= 3:
     st.markdown("""
