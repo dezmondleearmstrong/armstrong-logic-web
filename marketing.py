@@ -5,39 +5,51 @@ from email.mime.multipart import MIMEMultipart
 from google import genai
 from datetime import datetime
 
-# --- SOVEREIGN BRANDING & SHIELD THEME ---
+# --- SOVEREIGN BRANDING & FIT ---
 st.set_page_config(page_title="ArmstrongLogic | Calculator", page_icon="🛡️", layout="wide")
 
-# Initialize Usage Counter in Session State
 if "usage_count" not in st.session_state:
     st.session_state.usage_count = 0
 
 st.markdown("""
     <style>
     .main { background-color: #000000; color: #00f2ff; font-family: 'Courier New', monospace; }
+    
+    /* Calibrated Futuristic Title */
+    .futuristic-title {
+        font-size: 2.5rem; /* Reduced slightly for perfect fit */
+        font-weight: 900;
+        color: #00f2ff;
+        text-transform: uppercase;
+        letter-spacing: 6px; /* Tightened for professionalism */
+        text-shadow: 0px 0px 15px #00f2ff;
+        text-align: center;
+        border-bottom: 2px solid #00f2ff;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+    }
+    
     .stNumberInput>div>div>input, .stTextInput>div>div>input { 
         background-color: #0a0a0a; color: #00f2ff; border: 1px solid #00f2ff; border-radius: 0px; 
     }
-    .futuristic-title {
-        font-size: 3rem; font-weight: 900; color: #00f2ff; text-transform: uppercase;
-        letter-spacing: 12px; text-shadow: 0px 0px 20px #00f2ff; text-align: center;
-        border-bottom: 2px solid #00f2ff; margin-bottom: 30px; padding-bottom: 10px;
-    }
+    
     .stButton>button { 
         background-color: #00f2ff; color: #000; border-radius: 0px; width: 100%; 
         font-weight: bold; border: none; height: 3.5em; transition: 0.5s;
     }
     .stButton>button:hover { background-color: #ffffff; box-shadow: 0px 0px 30px #00f2ff; }
+    
     .report-box { 
-        padding: 40px; border: 1px solid #00f2ff; background: #050505; 
-        box-shadow: inset 0px 0px 20px #00f2ff; margin-top: 25px;
+        padding: 30px; border: 1px solid #00f2ff; background: #050505; 
+        box-shadow: inset 0px 0px 15px #00f2ff; margin-top: 25px;
     }
+    
     .lock-screen {
         text-align: center; padding: 50px; border: 2px dashed #ff4b4b; background: #1a0000;
         color: #ff4b4b; font-weight: bold; letter-spacing: 2px;
     }
     
-    /* Corrected CSS Keyframes for pulse animation */
+    /* Corrected pulse keyframes for web */
     @keyframes pulse { 
         0% { opacity: 1; } 
         50% { opacity: 0.1; } 
@@ -47,12 +59,12 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- DUAL-SENTINEL EMAIL LOGIC ---
+# --- DUAL-SENTINEL EMAIL ---
 def send_dual_reports(client_email, biz_name, leak_amt, annual_amt, prophet_text):
     try:
         my_email = st.secrets["my_email"]
         password = st.secrets["gmail_pass"]
-        report_body = f"🛡️ ARMSTRONGLOGIC SOVEREIGN AUDIT\nENTITY: {biz_name.upper()}\nLEAKAGE: ${leak_amt:,.2f}\nANNUAL: ${annual_amt:,.2f}\n\nINSIGHT:\n{prophet_text}"
+        report_body = f"🛡️ ARMSTRONGLOGIC SOVEREIGN AUDIT\nENTITY: {biz_name.upper()}\nMONTHLY LEAK: ${leak_amt:,.2f}\nANNUAL RECOVERY: ${annual_amt:,.2f}\n\nINSIGHT:\n{prophet_text}"
         
         for recipient in [client_email, my_email]:
             msg = MIMEMultipart()
@@ -66,27 +78,21 @@ def send_dual_reports(client_email, biz_name, leak_amt, annual_amt, prophet_text
             server.send_message(msg)
             server.quit()
         return True
-    except Exception as e: 
-        print(f"Sentinel Mail Error: {e}")
-        return False
+    except: return False
 
-# --- UI INTERFACE ---
-st.markdown("<h1 class='futuristic-title'>🛡️ ARMSTRONGLOGIC</h1>", unsafe_allow_html=True)
+# --- UI ---
+st.markdown("<h1 class='futuristic-title'>🛡️ ARMSTRONGLOGIC CALCULATOR</h1>", unsafe_allow_html=True)
 
-# --- SHIELD-GATE LOGIC ---
 if st.session_state.usage_count >= 3:
     st.markdown("""
     <div class='lock-screen'>
         <h1>ACCESS RESTRICTED</h1>
         <p>TRIAL LIMIT EXCEEDED. FULL AUDIT CAPABILITIES REQUIRE SOVEREIGN ENROLLMENT.</p>
-        <p>CONTACT: DEZMOND28 @ARMSTRONGLOGIC.COM TO ACTIVATE YOUR NODE.</p>
+        <p>CONTACT: DEZMOND28 @ARMSTRONGLOGIC.COM</p>
     </div>
     """, unsafe_allow_html=True)
-    if st.button("RETURN TO COMMAND CENTER"):
-        st.session_state.usage_count = 0 # Reset for testing if needed
-        st.rerun()
 else:
-    st.write(f"<p style='text-align: center; color: #00f2ff;'>DIAGNOSTIC LIMIT: {st.session_state.usage_count}/3</p>", unsafe_allow_html=True)
+    st.write(f"<p style='text-align: center; color: #00f2ff; letter-spacing: 2px;'>DIAGNOSTIC LIMIT: {st.session_state.usage_count}/3</p>", unsafe_allow_html=True)
     
     col1, col2 = st.columns(2)
     with col1:
@@ -98,16 +104,14 @@ else:
 
     if st.button("EXECUTE SHIELD DIAGNOSTIC"):
         if not restaurant_name or not restaurant_email:
-            st.error("HANDSHAKE FAILED: Missing Identity Ciphers.")
+            st.error("HANDSHAKE FAILED: Provide Identity and Email.")
         else:
-            # Diagnostics
             leak = (m_sales * 0.08) + (m_labor * 0.12)
             annual = leak * 12
             
             placeholder = st.empty()
             placeholder.markdown("<p class='loading-text'>ARMSTRONGLOGIC ANALYZING...</p>", unsafe_allow_html=True)
             
-            # Gemini 3.1 Pro Call
             client = genai.Client(api_key=st.secrets["gemini_key"])
             response = client.models.generate_content(
                 model="gemini-3.1-pro-preview",
@@ -116,26 +120,18 @@ else:
             insight = response.text
             placeholder.empty()
 
-            # Display Report
             st.markdown(f"""
             <div class='report-box'>
-                <h2 style='color: #00f2ff; text-align: center;'>🛡️ OFFICIAL RECOVERY REPORT</h2>
-                <p style='color: #ff4b4b; font-size: 1.8rem; text-align: center;'><b>MONTHLY LEAKAGE:</b> ${leak:,.2f}</p>
-                <p style='color: #00f2ff; text-align: center;'><b>ANNUAL RECOVERY:</b> ${annual:,.2f}</p>
-                <hr style='border-color: #00f2ff; opacity: 0.3;'>
-                <p><b>PROPHET INSIGHT:</b><br>{insight}</p>
+                <h2 style='color: #00f2ff; text-align: center; letter-spacing: 3px;'>🛡️ OFFICIAL RECOVERY REPORT</h2>
+                <p style='color: #ff4b4b; font-size: 1.5rem;'><b>MONTHLY LEAKAGE:</b> ${leak:,.2f}</p>
+                <p><b>INSIGHT:</b> {insight}</p>
             </div>
             """, unsafe_allow_html=True)
 
-            # Increment Counter & Email
             st.session_state.usage_count += 1
             send_dual_reports(restaurant_email, restaurant_name, leak, annual, insight)
-            st.success(f"🔱 AUDIT TRANSMITTED TO {restaurant_email.upper()}.")
-            
-            # Use an expander for the user to acknowledge before rerun clears the screen
-            with st.expander("ACKNOWLEDGE & CONTINUE"):
-                if st.button("CLOSE DIAGNOSTIC"):
-                    st.rerun() 
+            st.success("AUDIT TRANSMITTED.")
+            st.rerun()
 
 st.divider()
 st.caption("SYSTEM STATUS: SECURED // ARCHITECTURE: Dezmond Armstrong")
