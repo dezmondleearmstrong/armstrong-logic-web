@@ -78,8 +78,8 @@ def send_dual_reports(client_email, biz_name, leak_amt, annual_amt, prophet_text
                 msg.attach(MIMEText(report_body, 'plain'))
                 server.send_message(msg)
         return True
-    except Exception as e: 
-        print(f"SMTP Block: {e}")
+    except Exception as e:
+        print(f"SMTP Error: {e}")
         return False
 
 # --- UI INTERFACE ---
@@ -139,7 +139,7 @@ else:
 # --- 🔱 PERSISTENT DISPLAY & SUCCESS MESSAGE ---
 if st.session_state.last_report:
     report = st.session_state.last_report
-    st.success(f"🔱 ArmstrongLogic sent a report to {report['email']}. Thank you.")
+    st.success(f"🛡️ ArmstrongLogic sent a report to {report['email']}. Thank you.")
     
     st.markdown(f"""
     <div class='report-box'>
