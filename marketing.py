@@ -3,100 +3,139 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from google import genai
+from datetime import datetime
 
-# --- SOVEREIGN BRANDING ---
-st.set_page_config(page_title="Armstrong Logic | Profit Watchdog", page_icon="🔱", layout="wide")
+# --- SOVEREIGN BRANDING & SHIELD THEME ---
+st.set_page_config(page_title="ArmstrongLogic | Calculator", page_icon="🛡️", layout="wide")
+
+# Initialize Usage Counter in Session State
+if "usage_count" not in st.session_state:
+    st.session_state.usage_count = 0
 
 st.markdown("""
     <style>
-    .main { background-color: #050505; color: #00f2ff; font-family: 'Courier New', monospace; }
-    .stNumberInput>div>div>input, .stTextInput>div>div>input { background-color: #111; color: #00f2ff; border: 1px solid #00f2ff; }
-    .stButton>button { background-color: #00f2ff; color: black; border-radius: 0px; width: 100%; font-weight: bold; border: none; }
-    .metric-box { padding: 20px; border: 1px solid #00f2ff; background: #0a0a0a; text-align: center; margin-bottom: 10px; }
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
-    .loading-text { color: #00f2ff; font-weight: bold; text-align: center; animation: pulse 1.5s infinite; letter-spacing: 5px; }
+    .main { background-color: #000000; color: #00f2ff; font-family: 'Courier New', monospace; }
+    .stNumberInput>div>div>input, .stTextInput>div>div>input { 
+        background-color: #0a0a0a; color: #00f2ff; border: 1px solid #00f2ff; border-radius: 0px; 
+    }
+    .futuristic-title {
+        font-size: 3rem; font-weight: 900; color: #00f2ff; text-transform: uppercase;
+        letter-spacing: 12px; text-shadow: 0px 0px 20px #00f2ff; text-align: center;
+        border-bottom: 2px solid #00f2ff; margin-bottom: 30px; padding-bottom: 10px;
+    }
+    .stButton>button { 
+        background-color: #00f2ff; color: #000; border-radius: 0px; width: 100%; 
+        font-weight: bold; border: none; height: 3.5em; transition: 0.5s;
+    }
+    .stButton>button:hover { background-color: #ffffff; box-shadow: 0px 0px 30px #00f2ff; }
+    .report-box { 
+        padding: 40px; border: 1px solid #00f2ff; background: #050505; 
+        box-shadow: inset 0px 0px 20px #00f2ff; margin-top: 25px;
+    }
+    .lock-screen {
+        text-align: center; padding: 50px; border: 2px dashed #ff4b4b; background: #1a0000;
+        color: #ff4b4b; font-weight: bold; letter-spacing: 2px;
+    }
+    
+    /* Corrected CSS Keyframes for pulse animation */
+    @keyframes pulse { 
+        0% { opacity: 1; } 
+        50% { opacity: 0.1; } 
+        100% { opacity: 1; } 
+    }
+    .loading-text { color: #00f2ff; font-weight: bold; text-align: center; animation: pulse 0.8s infinite; letter-spacing: 10px; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- EMAIL SENTINEL FUNCTION ---
-def send_recovery_email(target_email, restaurant_name, est_leakage, prophet_insight):
+# --- DUAL-SENTINEL EMAIL LOGIC ---
+def send_dual_reports(client_email, biz_name, leak_amt, annual_amt, prophet_text):
     try:
-        msg = MIMEMultipart()
-        msg['From'] = st.secrets["my_email"]
-        msg['To'] = target_email
-        msg['Subject'] = f"🔱 CAPITAL RECOVERY REPORT: {restaurant_name.upper()}"
-
-        body = f"""
-        ARMSTRONG LOGIC | SOVEREIGN AUDIT
-        ---------------------------------
-        RESTAURANT: {restaurant_name}
-        IDENTIFIED MONTHLY LEAKAGE: ${est_leakage:,.2f}
+        my_email = st.secrets["my_email"]
+        password = st.secrets["gmail_pass"]
+        report_body = f"🛡️ ARMSTRONGLOGIC SOVEREIGN AUDIT\nENTITY: {biz_name.upper()}\nLEAKAGE: ${leak_amt:,.2f}\nANNUAL: ${annual_amt:,.2f}\n\nINSIGHT:\n{prophet_text}"
         
-        PROPHET DIAGNOSTIC:
-        {prophet_insight}
-        
-        This report was generated via the Armstrong Logic Watchdog Node. 
-        To finalize your capital reclamation, reply to this email to schedule a node-level audit.
-        
-        SYSTEM STATUS: OPTIMAL
-        """
-        msg.attach(MIMEText(body, 'plain'))
-        
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(st.secrets["my_email"], st.secrets["gmail_pass"])
-        server.send_message(msg)
-        server.quit()
+        for recipient in [client_email, my_email]:
+            msg = MIMEMultipart()
+            msg['From'] = my_email
+            msg['To'] = recipient
+            msg['Subject'] = f"🛡️ RECOVERY AUDIT: {biz_name.upper()}"
+            msg.attach(MIMEText(report_body, 'plain'))
+            server = smtplib.SMTP('smtp.gmail.com', 587)
+            server.starttls()
+            server.login(my_email, password)
+            server.send_message(msg)
+            server.quit()
         return True
-    except Exception as e:
-        print(f"Email Error: {e}") # Log to console for debugging
+    except Exception as e: 
+        print(f"Sentinel Mail Error: {e}")
         return False
 
 # --- UI INTERFACE ---
-st.title("🔱 ARMSTRONG LOGIC")
-st.subheader("PROFIT WATCHDOG: INSTANT RECOVERY CALCULATOR")
+st.markdown("<h1 class='futuristic-title'>🛡️ ARMSTRONGLOGIC</h1>", unsafe_allow_html=True)
 
-col_in1, col_in2 = st.columns(2)
-with col_in1:
-    res_name = st.text_input("Restaurant Name")
-    res_email = st.text_input("Decision Maker Email")
-with col_in2:
-    m_sales = st.number_input("Monthly Sales ($)", min_value=0, value=50000)
-    m_labor = st.number_input("Monthly Labor ($)", min_value=0, value=15000)
+# --- SHIELD-GATE LOGIC ---
+if st.session_state.usage_count >= 3:
+    st.markdown("""
+    <div class='lock-screen'>
+        <h1>ACCESS RESTRICTED</h1>
+        <p>TRIAL LIMIT EXCEEDED. FULL AUDIT CAPABILITIES REQUIRE SOVEREIGN ENROLLMENT.</p>
+        <p>CONTACT: DEZMOND28 @ARMSTRONGLOGIC.COM TO ACTIVATE YOUR NODE.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    if st.button("RETURN TO COMMAND CENTER"):
+        st.session_state.usage_count = 0 # Reset for testing if needed
+        st.rerun()
+else:
+    st.write(f"<p style='text-align: center; color: #00f2ff;'>DIAGNOSTIC LIMIT: {st.session_state.usage_count}/3</p>", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        restaurant_name = st.text_input("RESTAURANT NAME")
+        restaurant_email = st.text_input("DECISION MAKER EMAIL")
+    with col2:
+        m_sales = st.number_input("MONTHLY SALES ($)", min_value=0, value=75000)
+        m_labor = st.number_input("MONTHLY LABOR ($)", min_value=0, value=22000)
 
-if st.button("EXECUTE WATCHDOG ANALYSIS"):
-    if not res_name or not res_email:
-        st.warning("Cipher required: Please enter Restaurant Name and Email.")
-    else:
-        # Diagnostic Logic
-        leak = (m_sales * 0.06) + (m_labor * 0.12) # Aggressive estimation
-        
-        col_res1, col_res2 = st.columns(2)
-        with col_res1:
-            st.markdown(f"<div class='metric-box'><h3>MONTHLY LEAK</h3><h1 style='color: #ff4b4b;'>${leak:,.2f}</h1></div>", unsafe_allow_html=True)
-        with col_res2:
-            st.markdown(f"<div class='metric-box'><h3>ANNUAL RECOVERY</h3><h1 style='color: #00f2ff;'>${leak*12:,.2f}</h1></div>", unsafe_allow_html=True)
-
-        placeholder = st.empty()
-        placeholder.markdown("<p class='loading-text'>ARMSTRONGLOGIC ANALYZING...</p>", unsafe_allow_html=True)
-        
-        # Prophet Insight
-        client = genai.Client(api_key=st.secrets["gemini_key"])
-        response = client.models.generate_content(
-            model="gemini-3.1-pro-preview",
-            contents=f"Explain in 2 authoritative sentences why losing ${leak:,.2f} a month at {res_name} is a systemic failure of POS oversight and how Armstrong Logic stops it."
-        )
-        insight = response.text
-        placeholder.empty()
-        
-        st.write(f"### 🔱 PROPHET INSIGHT: {res_name.upper()}")
-        st.write(insight)
-
-        # Fire Sentinel Email
-        if send_recovery_email(res_email, res_name, leak, insight):
-            st.success(f"🔱 Full recovery audit transmitted to {res_email}.")
+    if st.button("EXECUTE SHIELD DIAGNOSTIC"):
+        if not restaurant_name or not restaurant_email:
+            st.error("HANDSHAKE FAILED: Missing Identity Ciphers.")
         else:
-            st.error("Sentinel Error: Handshake with email server failed.")
+            # Diagnostics
+            leak = (m_sales * 0.08) + (m_labor * 0.12)
+            annual = leak * 12
+            
+            placeholder = st.empty()
+            placeholder.markdown("<p class='loading-text'>ARMSTRONGLOGIC ANALYZING...</p>", unsafe_allow_html=True)
+            
+            # Gemini 3.1 Pro Call
+            client = genai.Client(api_key=st.secrets["gemini_key"])
+            response = client.models.generate_content(
+                model="gemini-3.1-pro-preview",
+                contents=f"Analyze {restaurant_name}: ${m_sales} sales, ${m_labor} labor. Monthly leak: ${leak}. Provide 2 professional, firm sentences on recovery."
+            )
+            insight = response.text
+            placeholder.empty()
+
+            # Display Report
+            st.markdown(f"""
+            <div class='report-box'>
+                <h2 style='color: #00f2ff; text-align: center;'>🛡️ OFFICIAL RECOVERY REPORT</h2>
+                <p style='color: #ff4b4b; font-size: 1.8rem; text-align: center;'><b>MONTHLY LEAKAGE:</b> ${leak:,.2f}</p>
+                <p style='color: #00f2ff; text-align: center;'><b>ANNUAL RECOVERY:</b> ${annual:,.2f}</p>
+                <hr style='border-color: #00f2ff; opacity: 0.3;'>
+                <p><b>PROPHET INSIGHT:</b><br>{insight}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # Increment Counter & Email
+            st.session_state.usage_count += 1
+            send_dual_reports(restaurant_email, restaurant_name, leak, annual, insight)
+            st.success(f"🔱 AUDIT TRANSMITTED TO {restaurant_email.upper()}.")
+            
+            # Use an expander for the user to acknowledge before rerun clears the screen
+            with st.expander("ACKNOWLEDGE & CONTINUE"):
+                if st.button("CLOSE DIAGNOSTIC"):
+                    st.rerun() 
 
 st.divider()
-st.caption("SYSTEM STATUS: OPTIMAL // ARCHITECTURE: SOVEREIGN")
+st.caption("SYSTEM STATUS: SECURED // ARCHITECTURE: Dezmond Armstrong")
