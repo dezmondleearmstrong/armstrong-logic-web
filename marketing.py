@@ -10,6 +10,8 @@ st.set_page_config(page_title="ArmstrongLogic | Calculator", page_icon="🛡️"
 
 if "usage_count" not in st.session_state:
     st.session_state.usage_count = 0
+if "last_report_data" not in st.session_state:
+    st.session_state.last_report_data = None
 
 st.markdown("""
     <style>
@@ -142,17 +144,30 @@ else:
             insight = response.text
             placeholder.empty()
 
-            st.markdown(f"""
-            <div class='report-box'>
-                <h2 style='color: #00f2ff; text-align: center; letter-spacing: 3px;'>🛡️ OFFICIAL RECOVERY REPORT</h2>
-                <p style='color: #ff4b4b; font-size: 1.5rem;'><b>MONTHLY LEAKAGE:</b> ${leak:,.2f}</p>
-                <p><b>INSIGHT:</b> {insight}</p>
-            </div>
-            """, unsafe_allow_html=True)
+            # --- PERSISTENCE LOGIC ---
+            st.session_state.last_report_data = {
+                "leak": leak,
+                "insight": insight
+            }
 
             st.session_state.usage_count += 1
             send_dual_reports(restaurant_email, restaurant_name, leak, annual, insight)
             st.success("AUDIT TRANSMITTED.")
+            st.rerun()
+
+    # --- PERSISTENT DISPLAY ---
+    if st.session_state.last_report_data:
+        data = st.session_state.last_report_data
+        st.markdown(f"""
+        <div class='report-box'>
+            <h2 style='color: #00f2ff; text-align: center; letter-spacing: 3px;'>🛡️ OFFICIAL RECOVERY REPORT</h2>
+            <p style='color: #ff4b4b; font-size: 1.5rem;'><b>MONTHLY LEAKAGE:</b> ${data['leak']:,.2f}</p>
+            <p><b>INSIGHT:</b> {data['insight']}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if st.button("CLEAR REPORT"):
+            st.session_state.last_report_data = None
             st.rerun()
 
 st.divider()
