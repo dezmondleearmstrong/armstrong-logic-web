@@ -154,4 +154,4 @@ if st.session_state.last_report:
         st.rerun()
 
 st.divider()
-st.caption("SYSTEM STATUS: SECURED // ARCHITECTURE: Dezmond Armstrong")
+st.caption("SYSTEM STATUS: SECURED //🛡️ArmstrongLogic : Dezmond Armstrong")
