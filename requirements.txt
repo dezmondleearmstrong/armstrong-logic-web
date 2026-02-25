@@ -3,3 +3,4 @@ yagmail
 google-genai>=0.3.0
 pandas
 streamlit>=1.40.0
+fpdf2
