@@ -56,9 +56,32 @@ def generate_pdf(report_text):
     pdf.add_page()
     pdf.set_font("Helvetica", size=11)
     pdf.set_text_color(0, 0, 0)
-    # Clean up text for PDF encoding (fpdf2 prefers utf-8 encoding generally, but we'll strip complex chars just in case)
-    safe_text = report_text.encode('latin-1', 'replace').decode('latin-1')
-    pdf.multi_cell(0, 10, safe_text)
+    
+    # --- Capital Reclamation Table ---
+    pdf.set_font("Helvetica", 'B', 12)
+    pdf.set_fill_color(240, 240, 240)
+    pdf.cell(0, 10, "LEAKAGE RECLAMATION SUMMARY", 1, 1, 'C', 1)
+    pdf.set_font("Helvetica", '', 10)
+    pdf.cell(100, 10, "Target Leak Type", 1, 0, 'L')
+    pdf.cell(90, 10, "Estimated Hourly Savings", 1, 1, 'R')
+    
+    # Hardcoded logic based on specific audit
+    pdf.cell(100, 10, "Phantom Labor / Time Theft", 1, 0, 'L')
+    pdf.cell(90, 10, "$120.00 / hr", 1, 1, 'R')
+    pdf.cell(100, 10, "Static Schedule Inefficiency", 1, 0, 'L')
+    pdf.cell(90, 10, "Variable ($40 - $120 / hr)", 1, 1, 'R')
+    pdf.ln(10)
+    
+    # --- Audit Narrative ---
+    pdf.set_font("Helvetica", 'B', 12)
+    pdf.cell(0, 10, "PROPHET DIAGNOSTIC NARRATIVE", 0, 1, 'L')
+    pdf.set_font("Helvetica", size=10)
+    
+    # Strip markdown bold for PDF and encode safely
+    clean_text = str(report_text).replace('**', '')
+    safe_text = clean_text.encode('latin-1', 'replace').decode('latin-1')
+    pdf.multi_cell(0, 7, safe_text)
+    
     return pdf.output(dest='S').encode('latin-1') # Return bytes
 
 # --- REGISTRY LOGIC (The Vault) ---
@@ -126,7 +149,7 @@ if page == "User Registry":
                 save_registry(registry)
                 st.rerun()
 
-# --- PROPHET MODULE (With PDF Export) ---
+# --- PROPHET MODULE (With Updated PDF Logic) ---
 elif page == "Prophet Module":
     st.title("⚡ ARMSTRONG LOGIC: PROPHET DIAGNOSTIC")
     st.write("Analyzing regional POS entropy and capital leakage.")
@@ -155,17 +178,19 @@ elif page == "Prophet Module":
                 st.markdown("### 🔱 ARMSTRONG LOGIC EXECUTIVE REPORT")
                 st.write(st.session_state.last_report)
                 
-                # Render PDF Download Button
-                pdf_bytes = generate_pdf(st.session_state.last_report)
+                # Manifest the PDF artifact using the new function
+                pdf_output = generate_pdf(st.session_state.last_report)
+                
+                # Use bytes() to ensure Streamlit accepts it cleanly
                 st.download_button(
                     label="🔱 DOWNLOAD OFFICIAL SENTINEL REPORT",
-                    data=pdf_bytes,
+                    data=bytes(pdf_output),
                     file_name=f"Armstrong_Logic_Audit_{datetime.now().strftime('%Y%m%d')}.pdf",
                     mime="application/pdf"
                 )
                 
             except Exception as e:
-                st.error(f"SYSTEM ERROR: Diagnostic Interrupted. Details: {str(e)}")
+                st.error(f"SYSTEM ERROR: {e}")
 
 # --- NETWORK HEALTH ---
 elif page == "Network Health":
