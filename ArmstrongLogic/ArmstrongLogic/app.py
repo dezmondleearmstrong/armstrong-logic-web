@@ -122,21 +122,46 @@ registry = load_registry()
 
 # --- PROFESSIONAL LOGIN GATE ---
 if not st.session_state.authenticated:
-    st.markdown("<h1 class='sovereign-header'>🛡️ ARMSTRONG LOGIC</h1>", unsafe_allow_html=True)
-    
-    col_l, col_r = st.columns([1, 1])
-    with col_l:
-        st.write("### SYSTEM ACCESS")
+    st.markdown("""
+        <style>
+        /* Crystalline Login Container */
+        .login-box {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 400px;
+            margin: auto;
+        }
+        /* Overriding standard input borders */
+        div[data-baseweb="input"] {
+            background-color: rgba(0, 0, 0, 0.2) !important;
+            border: 1px solid rgba(0, 229, 255, 0.1) !important;
+            border-radius: 8px !important;
+        }
+        input {
+            color: white !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<h1 style='text-align: center; color: #00e5ff; letter-spacing: 8px;'>ARMSTRONGLOGIC</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #f0f0f0; margin-bottom: 40px;'>SYSTEM ACCESS PORTAL</p>", unsafe_allow_html=True)
+
+    with st.container():
+        st.markdown('<div class="login-box">', unsafe_allow_html=True)
         user_input = st.text_input("Username")
         pass_input = st.text_input("Password", type="password")
         
-        if st.button("LOG IN"):
+        if st.button("LOG IN", use_container_width=True):
             if user_input in registry and registry[user_input] == pass_input:
                 st.session_state.authenticated = True
                 st.session_state.current_user = user_input
                 st.rerun()
             else:
                 st.error("Access Denied: Invalid Credentials.")
+        st.markdown('</div>', unsafe_allow_html=True)
     st.stop()
 
 # --- INTERNAL COMMAND CENTER ---
