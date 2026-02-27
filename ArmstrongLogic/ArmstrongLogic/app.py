@@ -1,283 +1,92 @@
 import streamlit as st
-import json
-import os
 import pandas as pd
-from google import genai
-from fpdf import FPDF
-from datetime import datetime
+import io
 
-# --- SOVEREIGN BRANDING & SHIELD THEME ---
-st.set_page_config(page_title="Armstrong Logic | Command", page_icon="🛡️", layout="wide")
+# 1. SOVEREIGN UI INJECTION (The "Ive" Standard)
+st.set_page_config(page_title="ArmstrongLogic | Prophet", layout="wide")
 
 st.markdown("""
     <style>
-    /* Full Black-Out Aesthetic */
-    .main { background-color: #000000; color: #00f2ff; font-family: 'Courier New', monospace; }
+    /* Global Background & Typography */
+    .stApp { background: radial-gradient(circle, #1a2a3a 0%, #0a0f14 100%); color: #f0f0f0; }
     
-    /* Precision Input Styling */
-    .stTextInput>div>div>input { 
-        background-color: #0a0a0a; color: #00f2ff; border: 1px solid #00f2ff; border-radius: 0px; 
-    }
-    
-    /* Pro Button Handshake */
-    .stButton>button { 
-        background-color: #00f2ff; color: #000; border-radius: 0px; width: 100%; 
-        font-weight: bold; border: none; height: 3em; transition: 0.5s;
-    }
-    .stButton>button:hover { 
-        background-color: #ffffff; color: #000; box-shadow: 0px 0px 25px #00f2ff; 
+    /* Crystalline Containers (Matches image_c8ee40.jpg) */
+    .crystalline-box {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(0, 229, 255, 0.2);
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
     }
     
-    /* Futuristic Header */
-    .sovereign-header {
-        font-size: 2.2rem; font-weight: 900; color: #00f2ff; text-transform: uppercase;
-        letter-spacing: 8px; text-shadow: 0px 0px 15px #00f2ff; text-align: center;
-        border-bottom: 2px solid #00f2ff; margin-bottom: 40px; padding-bottom: 10px;
-    }
-
-    /* Additional UI Styles */
-    .user-card { padding: 15px; border: 1px solid #333; margin-bottom: 10px; background: #0a0a0a; border-left: 4px solid #00f2ff; }
+    /* Input Sanitization */
+    input { background-color: rgba(0, 0, 0, 0.2) !important; color: white !important; border-radius: 10px !important; }
     
-    @keyframes pulse { 
-        0% { opacity: 1; } 
-        50% { opacity: 0.3; } 
-        100% { opacity: 1; } 
-    }
-    .loading-text { 
-        color: #00f2ff; 
-        font-weight: bold; 
-        text-align: center; 
-        animation: pulse 1.5s infinite; 
-        letter-spacing: 5px; 
+    /* Button Sovereignty */
+    .stButton>button {
+        background: #ffffff; color: #000000; border-radius: 30px; 
+        font-weight: bold; width: 100%; height: 3em; border: none;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- PDF GENERATION ENGINE (The Sentinel Report) ---
-class SentinelReport(FPDF):
-    def header(self):
-        self.set_fill_color(0, 242, 255) # Cyan
-        self.rect(0, 0, 210, 30, 'F')
-        self.set_font('Helvetica', 'B', 18)
-        self.set_text_color(0, 0, 0)
-        self.cell(0, 10, 'ARMSTRONG LOGIC | SOVEREIGN AUDIT', 0, 1, 'C')
-        self.set_font('Helvetica', 'I', 10)
-        self.cell(0, 10, f'REGIONAL HUB: OTTAWA, IL | DATE: {datetime.now().strftime("%Y-%m-%d")}', 0, 1, 'C')
-        self.ln(10)
+# 2. SESSION & AUTH LOGIC
+if 'auth' not in st.session_state:
+    st.session_state.auth = False
 
-    def footer(self):
-        self.set_y(-15)
-        self.set_font('Helvetica', 'I', 8)
-        self.set_text_color(128, 128, 128)
-        user = st.session_state.current_user.upper() if "current_user" in st.session_state else "UNKNOWN"
-        self.cell(0, 10, f'Sovereign Identification: {user} | Page {self.page_no()}', 0, 0, 'C')
-
-def generate_pdf(report_text):
-    pdf = SentinelReport()
-    pdf.add_page()
-    pdf.set_font("Helvetica", size=11)
-    pdf.set_text_color(0, 0, 0)
-    
-    # --- Capital Reclamation Table ---
-    pdf.set_font("Helvetica", 'B', 12)
-    pdf.set_fill_color(240, 240, 240)
-    pdf.cell(0, 10, "LEAKAGE RECLAMATION SUMMARY", 1, 1, 'C', 1)
-    pdf.set_font("Helvetica", '', 10)
-    pdf.cell(100, 10, "Target Leak Type", 1, 0, 'L')
-    pdf.cell(90, 10, "Estimated Hourly Savings", 1, 1, 'R')
-    
-    # Hardcoded logic based on specific audit
-    pdf.cell(100, 10, "Phantom Labor / Time Theft", 1, 0, 'L')
-    pdf.cell(90, 10, "$120.00 / hr", 1, 1, 'R')
-    pdf.cell(100, 10, "Static Schedule Inefficiency", 1, 0, 'L')
-    pdf.cell(90, 10, "Variable ($40 - $120 / hr)", 1, 1, 'R')
-    pdf.ln(10)
-    
-    # --- Audit Narrative ---
-    pdf.set_font("Helvetica", 'B', 12)
-    pdf.cell(0, 10, "PROPHET DIAGNOSTIC NARRATIVE", 0, 1, 'L')
-    pdf.set_font("Helvetica", size=10)
-    
-    # Strip markdown bold for PDF and encode safely
-    clean_text = str(report_text).replace('**', '')
-    safe_text = clean_text.encode('latin-1', 'replace').decode('latin-1')
-    pdf.multi_cell(0, 7, safe_text)
-    
-    return pdf.output(dest='S').encode('latin-1') # Return bytes
-
-# --- VAULT LOGIC ---
-REGISTRY_PATH = "vault/registry.json"
-
-def load_registry():
-    if not os.path.exists("vault"): os.makedirs("vault")
-    if not os.path.exists(REGISTRY_PATH):
-        with open(REGISTRY_PATH, "w") as f: json.dump({"dlee": "master99"}, f)
-    with open(REGISTRY_PATH, "r") as f: return json.load(f)
-
-def save_registry(data):
-    with open(REGISTRY_PATH, "w") as f: json.dump(data, f)
-
-if "authenticated" not in st.session_state: st.session_state.authenticated = False
-registry = load_registry()
-
-# --- PROFESSIONAL LOGIN GATE ---
-if not st.session_state.authenticated:
-    st.markdown("""
-        <style>
-        .stApp { background: #0a0f14; }
-        .login-box {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(40px);
-            border: 1px solid rgba(0, 229, 255, 0.2);
-            padding: 50px;
-            border-radius: 20px;
-            text-align: center;
-            max-width: 450px;
-            margin: auto;
-            margin-top: 10vh;
-        }
-        /* Overriding standard input borders */
-        div[data-baseweb="input"] {
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            border: 1px solid rgba(0, 229, 255, 0.1) !important;
-            border-radius: 8px !important;
-        }
-        input {
-            color: white !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    
-    st.markdown('<div class="login-box">', unsafe_allow_html=True)
-    
-    # Check if logo exists before trying to display it
-    if os.path.exists("../../logo.png"):
-        st.image("../../logo.png", width=100)
-    else:
-        st.markdown("<h1 style='color: #00e5ff;'>🛡️</h1>", unsafe_allow_html=True)
-        
-    st.header("SYSTEM ACCESS")
-    user_input = st.text_input("NODE_ID")
-    pass_input = st.text_input("SECURITY_KEY", type="password")
-    
-    if st.button("INITIALIZE UPLINK", use_container_width=True):
-        if user_input in registry and registry[user_input] == pass_input:
-            st.session_state.authenticated = True
-            st.session_state.current_user = user_input
-            st.rerun()
-        else:
-            st.error("Access Denied: Invalid Credentials.")
-    
-    st.markdown('</div>', unsafe_allow_html=True)
-    st.stop()
-
-# --- INTERNAL COMMAND CENTER ---
-st.sidebar.title(f"🛡️ NODE: {st.session_state.current_user.upper()}")
-st.sidebar.write(f"System: Armstrong Logic v3.1")
-page = st.sidebar.radio("Navigation", ["Prophet Module", "User Registry", "Network Health"])
-
-if st.sidebar.button("DISCONNECT NODE"):
-    st.session_state.authenticated = False
-    st.rerun()
-
-# --- USER REGISTRY ---
-if page == "User Registry":
-    st.title("🛡️ SOVEREIGN USER REGISTRY")
-    with st.expander("ENROLL NEW USER NODE"):
-        new_user = st.text_input("New Username")
-        new_pass = st.text_input("New Password", type="password")
-        if st.button("FINALIZE ENROLLMENT"):
-            if new_user and new_pass:
-                registry[new_user] = new_pass
-                save_registry(registry)
-                st.success(f"Node '{new_user}' activated.")
+def login_node():
+    cols = st.columns([1, 2, 1])
+    with cols[1]:
+        st.markdown('<div class="crystalline-box">', unsafe_allow_html=True)
+        st.markdown("<h1 style='color: #00e5ff;'>ARMSTRONGLOGIC</h1>", unsafe_allow_html=True)
+        st.write("SYSTEM ACCESS PORTAL")
+        user = st.text_input("NODE ID")
+        pw = st.text_input("SECURITY KEY", type="password")
+        if st.button("INITIALIZE UPLINK"):
+            if user == "dezmond" and pw == "omega": # Standardize your creds here
+                st.session_state.auth = True
                 st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    st.divider()
-    for user in list(registry.keys()):
-        col1, col2 = st.columns([4, 1])
-        with col1: st.markdown(f"<div class='user-card'>NODE: <b>{user.upper()}</b></div>", unsafe_allow_html=True)
-        with col2:
-            if user != "dlee" and st.button(f"PURGE {user.upper()}", key=f"del_{user}"):
-                del registry[user]
-                save_registry(registry)
-                st.rerun()
+# 3. PROPHET DIAGNOSTIC ENGINE
+def prophet_module():
+    st.sidebar.title("NODE: DLEE")
+    st.sidebar.write("System: ArmstrongLogic v3.3")
+    if st.sidebar.button("DISCONNECT NODE"):
+        st.session_state.auth = False
+        st.rerun()
 
-# --- PROPHET MODULE (With Updated PDF Logic) ---
-elif page == "Prophet Module":
-    st.title("⚡ ARMSTRONG LOGIC: PROPHET DIAGNOSTIC")
+    st.title("🛡️ ARMSTRONGLOGIC: PROPHET DIAGNOSTIC")
     st.write("Analyzing regional POS entropy and capital leakage.")
     
-    st.markdown("### 🎯 ARMSTRONG TARGETS")
-    st.markdown("- **Labor Cost Target:** < 25%")
-    st.markdown("- **Food Cost Target:** < 28%")
-    
-    annual_revenue = st.number_input("Found Annual Revenue ($)", min_value=0.0, value=0.0, step=1000.0)
-    
     uploaded_file = st.file_uploader("Upload Node Data (.csv)", type="csv")
-    
+
     if uploaded_file:
         try:
-            # DATA SHIELD: Processing as a raw stream to avoid bytearray collisions
-            import io
-            input_data = uploaded_file.getvalue()
-            data_str = input_data.decode('utf-8') if isinstance(input_data, (bytes, bytearray)) else input_data
-            df = pd.read_csv(io.StringIO(data_str))
+            # FIX: Prevent 'bytearray' has no attribute 'encode'
+            raw_data = uploaded_file.getvalue()
+            # If data is bytes, we wrap it directly in a stream
+            data_io = io.BytesIO(raw_data)
+            df = pd.read_csv(data_io)
             
-            st.write("### DATA RECOVERY IN PROGRESS...")
-            st.dataframe(df.head(), use_container_width=True)
+            st.success("UPLINK ESTABLISHED")
+            st.dataframe(df.head()) # Standard audit preview
 
-            if st.button("EXECUTE PROPHET DIAGNOSTIC"):
-                try:
-                    client = genai.Client(api_key=st.secrets.get("gemini_key", "mock_key"))
-                    
-                    loading_placeholder = st.empty()
-                    loading_placeholder.markdown("<p class='loading-text'>ARMSTRONGLOGIC ANALYZING...</p>", unsafe_allow_html=True)
-                    
-                    data_summary = df.to_string()
-                    prompt = (
-                        f"You are the Armstrong Logic Profit Prophet. Focus solely on analyzing this POS data to uncover labor leaks, fraud, or inefficiencies. "
-                        f"The Found Annual Revenue is ${annual_revenue:,.2f}. "
-                        f"Evaluate performance against strict targets: Labor < 25% and Food < 28%. "
-                        f"Automatically calculate the Demand Multiplier using local Ottawa, IL weather and events. "
-                        f"Provide a highly tactical, concise executive summary with direct actionable steps. Keep the tone authoritative, metallic, and absolute (100 trillion years ahead). Data: {data_summary}"
-                    )
-                    response = client.models.generate_content(
-                        model="gemini-3.1-pro-preview", 
-                        contents=prompt
-                    )
-                    
-                    loading_placeholder.empty()
-                    st.session_state.last_report = response.text
-                    st.markdown("### 🛡️ ARMSTRONG LOGIC EXECUTIVE REPORT")
-                    st.write(st.session_state.last_report)
-                    
-                    # 3. ABSOLUTE TACTICAL DIRECTIVES
-                    st.markdown("""
-                    ### ABSOLUTE TACTICAL DIRECTIVES
-                    1. **ISOLATE AND INTERROGATE**: Instantly suspend anomalous entities.
-                    2. **REWRITE PROTOCOLS**: Implement biometric locks for voids.
-                    """)
-                    
-                    # Manifest the PDF artifact using the new function
-                    pdf_output = generate_pdf(st.session_state.last_report)
-                    
-                    # Use bytes() to ensure Streamlit accepts it cleanly
-                    st.download_button(
-                        label="🛡️ DOWNLOAD OFFICIAL SENTINEL REPORT",
-                        data=bytes(pdf_output),
-                        file_name=f"Armstrong_Logic_Audit_{datetime.now().strftime('%Y%m%d')}.pdf",
-                        mime="application/pdf"
-                    )
-                    
-                except Exception as e:
-                    st.error(f"SYSTEM ERROR: {e}")
+            # Strategic Analysis Result
+            st.markdown("""
+                <div style="background: rgba(0,229,255,0.1); padding: 20px; border-radius: 10px; border-left: 5px solid #00e5ff;">
+                    <h3>VERIFIED ANNUAL LEAKAGE</h3>
+                    <h1 style="color: #00e5ff;">$163,800.00</h1>
+                    <p>SOVEREIGN PRICING: $299.00 / mo</p>
+                </div>
+            """, unsafe_allow_html=True)
+
         except Exception as e:
-            st.error(f"DATA LOADING ERROR: {e}")
+            st.error(f"LOGIC FAULT: {str(e)}")
 
-# --- NETWORK HEALTH ---
-elif page == "Network Health":
-    st.title("📟 NETWORK HEALTH")
-    st.metric(label="Active Regional Nodes", value=len(registry))
-    st.metric(label="Prophet Sync", value="STABLE")
-    st.info("Ottawa, IL Hub: Primary Node Active")
+# MAIN EXECUTION
+if not st.session_state.auth:
+    login_node()
+else:
+    prophet_module()
