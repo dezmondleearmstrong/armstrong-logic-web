@@ -185,47 +185,63 @@ elif page == "Prophet Module":
     uploaded_file = st.file_uploader("Upload Node Data (.csv)", type="csv")
     
     if uploaded_file:
-        df = pd.read_csv(uploaded_file)
-        st.dataframe(df, use_container_width=True)
-        
-        if st.button("EXECUTE PROPHET DIAGNOSTIC"):
-            try:
-                client = genai.Client(api_key=st.secrets.get("gemini_key", "mock_key"))
-                
-                loading_placeholder = st.empty()
-                loading_placeholder.markdown("<p class='loading-text'>ARMSTRONGLOGIC ANALYZING...</p>", unsafe_allow_html=True)
-                
-                data_summary = df.to_string()
-                prompt = (
-                    f"You are the Armstrong Logic Profit Prophet. Focus solely on analyzing this POS data to uncover labor leaks, fraud, or inefficiencies. "
-                    f"The Found Annual Revenue is ${annual_revenue:,.2f}. "
-                    f"Evaluate performance against strict targets: Labor < 25% and Food < 28%. "
-                    f"Automatically calculate the Demand Multiplier using local Ottawa, IL weather and events. "
-                    f"Provide a highly tactical, concise executive summary with direct actionable steps. Keep the tone authoritative, metallic, and absolute (100 trillion years ahead). Data: {data_summary}"
-                )
-                response = client.models.generate_content(
-                    model="gemini-3.1-pro-preview", 
-                    contents=prompt
-                )
-                
-                loading_placeholder.empty()
-                st.session_state.last_report = response.text
-                st.markdown("### 🛡️ ARMSTRONG LOGIC EXECUTIVE REPORT")
-                st.write(st.session_state.last_report)
-                
-                # Manifest the PDF artifact using the new function
-                pdf_output = generate_pdf(st.session_state.last_report)
-                
-                # Use bytes() to ensure Streamlit accepts it cleanly
-                st.download_button(
-                    label="🛡️ DOWNLOAD OFFICIAL SENTINEL REPORT",
-                    data=bytes(pdf_output),
-                    file_name=f"Armstrong_Logic_Audit_{datetime.now().strftime('%Y%m%d')}.pdf",
-                    mime="application/pdf"
-                )
-                
-            except Exception as e:
-                st.error(f"SYSTEM ERROR: {e}")
+        try:
+            # DATA SHIELD: Processing as a raw stream to avoid bytearray collisions
+            import io
+            input_data = uploaded_file.getvalue()
+            data_str = input_data.decode('utf-8') if isinstance(input_data, (bytes, bytearray)) else input_data
+            df = pd.read_csv(io.StringIO(data_str))
+            
+            st.write("### DATA RECOVERY IN PROGRESS...")
+            st.dataframe(df.head(), use_container_width=True)
+
+            if st.button("EXECUTE PROPHET DIAGNOSTIC"):
+                try:
+                    client = genai.Client(api_key=st.secrets.get("gemini_key", "mock_key"))
+                    
+                    loading_placeholder = st.empty()
+                    loading_placeholder.markdown("<p class='loading-text'>ARMSTRONGLOGIC ANALYZING...</p>", unsafe_allow_html=True)
+                    
+                    data_summary = df.to_string()
+                    prompt = (
+                        f"You are the Armstrong Logic Profit Prophet. Focus solely on analyzing this POS data to uncover labor leaks, fraud, or inefficiencies. "
+                        f"The Found Annual Revenue is ${annual_revenue:,.2f}. "
+                        f"Evaluate performance against strict targets: Labor < 25% and Food < 28%. "
+                        f"Automatically calculate the Demand Multiplier using local Ottawa, IL weather and events. "
+                        f"Provide a highly tactical, concise executive summary with direct actionable steps. Keep the tone authoritative, metallic, and absolute (100 trillion years ahead). Data: {data_summary}"
+                    )
+                    response = client.models.generate_content(
+                        model="gemini-3.1-pro-preview", 
+                        contents=prompt
+                    )
+                    
+                    loading_placeholder.empty()
+                    st.session_state.last_report = response.text
+                    st.markdown("### 🛡️ ARMSTRONG LOGIC EXECUTIVE REPORT")
+                    st.write(st.session_state.last_report)
+                    
+                    # 3. ABSOLUTE TACTICAL DIRECTIVES
+                    st.markdown("""
+                    ### ABSOLUTE TACTICAL DIRECTIVES
+                    1. **ISOLATE AND INTERROGATE**: Instantly suspend anomalous entities.
+                    2. **REWRITE PROTOCOLS**: Implement biometric locks for voids.
+                    """)
+                    
+                    # Manifest the PDF artifact using the new function
+                    pdf_output = generate_pdf(st.session_state.last_report)
+                    
+                    # Use bytes() to ensure Streamlit accepts it cleanly
+                    st.download_button(
+                        label="🛡️ DOWNLOAD OFFICIAL SENTINEL REPORT",
+                        data=bytes(pdf_output),
+                        file_name=f"Armstrong_Logic_Audit_{datetime.now().strftime('%Y%m%d')}.pdf",
+                        mime="application/pdf"
+                    )
+                    
+                except Exception as e:
+                    st.error(f"SYSTEM ERROR: {e}")
+        except Exception as e:
+            st.error(f"DATA LOADING ERROR: {e}")
 
 # --- NETWORK HEALTH ---
 elif page == "Network Health":
