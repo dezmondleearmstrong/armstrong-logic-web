@@ -124,15 +124,17 @@ registry = load_registry()
 if not st.session_state.authenticated:
     st.markdown("""
         <style>
-        /* Crystalline Login Container */
+        .stApp { background: #0a0f14; }
         .login-box {
             background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(25px);
+            backdrop-filter: blur(40px);
             border: 1px solid rgba(0, 229, 255, 0.2);
-            border-radius: 16px;
-            padding: 40px;
-            max-width: 400px;
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 450px;
             margin: auto;
+            margin-top: 10vh;
         }
         /* Overriding standard input borders */
         div[data-baseweb="input"] {
@@ -144,24 +146,29 @@ if not st.session_state.authenticated:
             color: white !important;
         }
         </style>
-        """, unsafe_allow_html=True)
-
-    st.markdown("<h1 style='text-align: center; color: #00e5ff; letter-spacing: 8px;'>ARMSTRONGLOGIC</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #f0f0f0; margin-bottom: 40px;'>SYSTEM ACCESS PORTAL</p>", unsafe_allow_html=True)
-
-    with st.container():
-        st.markdown('<div class="login-box">', unsafe_allow_html=True)
-        user_input = st.text_input("Username")
-        pass_input = st.text_input("Password", type="password")
+    """, unsafe_allow_html=True)
+    
+    st.markdown('<div class="login-box">', unsafe_allow_html=True)
+    
+    # Check if logo exists before trying to display it
+    if os.path.exists("../../logo.png"):
+        st.image("../../logo.png", width=100)
+    else:
+        st.markdown("<h1 style='color: #00e5ff;'>🛡️</h1>", unsafe_allow_html=True)
         
-        if st.button("LOG IN", use_container_width=True):
-            if user_input in registry and registry[user_input] == pass_input:
-                st.session_state.authenticated = True
-                st.session_state.current_user = user_input
-                st.rerun()
-            else:
-                st.error("Access Denied: Invalid Credentials.")
-        st.markdown('</div>', unsafe_allow_html=True)
+    st.header("SYSTEM ACCESS")
+    user_input = st.text_input("NODE_ID")
+    pass_input = st.text_input("SECURITY_KEY", type="password")
+    
+    if st.button("INITIALIZE UPLINK", use_container_width=True):
+        if user_input in registry and registry[user_input] == pass_input:
+            st.session_state.authenticated = True
+            st.session_state.current_user = user_input
+            st.rerun()
+        else:
+            st.error("Access Denied: Invalid Credentials.")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
     st.stop()
 
 # --- INTERNAL COMMAND CENTER ---
