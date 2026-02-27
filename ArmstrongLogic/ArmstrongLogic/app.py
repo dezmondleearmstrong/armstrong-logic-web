@@ -85,7 +85,7 @@ else:
             if client:
                 with st.spinner("🛡️Armstronglogic analyzing..."):
                     data_summary = df.head(50).to_string()
-                    prompt = f"You are 'Profit Watchdog AI'. Analyze this data and identify 3 areas of profit loss and 3 action steps: {data_summary}"
+                    prompt = f"You are 'AXIOM'. Analyze this data and identify 3 areas of profit loss and 3 action steps: {data_summary}"
                     
                     try:
                         response = client.models.generate_content(
