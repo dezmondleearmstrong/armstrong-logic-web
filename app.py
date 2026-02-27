@@ -176,6 +176,12 @@ elif page == "Prophet Module":
     st.title("⚡ ARMSTRONG LOGIC: PROPHET DIAGNOSTIC")
     st.write("Analyzing regional POS entropy and capital leakage.")
     
+    st.markdown("### 🎯 ARMSTRONG TARGETS")
+    st.markdown("- **Labor Cost Target:** < 25%")
+    st.markdown("- **Food Cost Target:** < 28%")
+    
+    annual_revenue = st.number_input("Found Annual Revenue ($)", min_value=0.0, value=0.0, step=1000.0)
+    
     uploaded_file = st.file_uploader("Upload Node Data (.csv)", type="csv")
     
     if uploaded_file:
@@ -184,15 +190,22 @@ elif page == "Prophet Module":
         
         if st.button("EXECUTE PROPHET DIAGNOSTIC"):
             try:
-                client = genai.Client(api_key=st.secrets["gemini_key"])
+                client = genai.Client(api_key=st.secrets.get("gemini_key", "mock_key"))
                 
                 loading_placeholder = st.empty()
                 loading_placeholder.markdown("<p class='loading-text'>ARMSTRONGLOGIC ANALYZING...</p>", unsafe_allow_html=True)
                 
                 data_summary = df.to_string()
+                prompt = (
+                    f"You are the Armstrong Logic Profit Prophet. Focus solely on analyzing this POS data to uncover labor leaks, fraud, or inefficiencies. "
+                    f"The Found Annual Revenue is ${annual_revenue:,.2f}. "
+                    f"Evaluate performance against strict targets: Labor < 25% and Food < 28%. "
+                    f"Automatically calculate the Demand Multiplier using local Ottawa, IL weather and events. "
+                    f"Provide a highly tactical, concise executive summary with direct actionable steps. Keep the tone authoritative, metallic, and absolute (100 trillion years ahead). Data: {data_summary}"
+                )
                 response = client.models.generate_content(
                     model="gemini-3.1-pro-preview", 
-                    contents=f"You are the Armstrong Logic Profit Prophet. Focus solely on analyzing this POS data to uncover labor leaks, fraud, or inefficiencies. Provide a highly tactical, concise executive summary with direct actionable steps. Keep the tone authoritative, metallic, and absolute (100 trillion years ahead). Data: {data_summary}"
+                    contents=prompt
                 )
                 
                 loading_placeholder.empty()
