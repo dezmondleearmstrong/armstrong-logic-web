@@ -83,7 +83,7 @@ else:
 
         if st.button("🚀 Run 🛡️armstronglogic Audit"):
             if client:
-                with st.spinner(“🛡️Armstronglogic analyzing..."):
+                with st.spinner("🛡️Armstronglogic analyzing..."):
                     data_summary = df.head(50).to_string()
                     prompt = f"You are 'Profit Watchdog AI'. Analyze this data and identify 3 areas of profit loss and 3 action steps: {data_summary}"
                     
@@ -104,4 +104,3 @@ else:
 # --- 5. GLOBAL FOOTER ---
 st.markdown("---")
 st.caption("ANAB ACCREDITED • CERTIFIED FOOD PROTECTION MANAGER ID: 1768415046 • ISO 42001 COMPLIANT")
-
